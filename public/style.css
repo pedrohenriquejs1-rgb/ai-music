@@ -653,8 +653,56 @@ textarea {
 }
 
 .result audio {
-  width: 100%;
+  display: none;
+}
+
+/* ---- Player customizado ---- */
+.player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 14px;
+}
+
+.player-toggle {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--coral), var(--coral-light));
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(190, 56, 86, 0.3);
+}
+
+.player-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--input-border);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.player-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--gradient);
+  border-radius: 999px;
+}
+
+.player-time {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--card-muted);
+  min-width: 78px;
+  text-align: right;
 }
 
 .result-actions {

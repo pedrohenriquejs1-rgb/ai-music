@@ -231,10 +231,16 @@
 
             <div id="result" class="result" hidden>
               <h3>Sua prévia</h3>
-              <audio id="audio-player" controls></audio>
+              <audio id="audio-player" preload="metadata"></audio>
+              <div class="player">
+                <button type="button" id="player-toggle" class="player-toggle" aria-label="Reproduzir">▶</button>
+                <div class="player-track" id="player-track">
+                  <div class="player-fill" id="player-fill"></div>
+                </div>
+                <span class="player-time" id="player-time">0:00 / 0:40</span>
+              </div>
               <div class="result-actions">
-                <a id="download-link" class="secondary-btn" download>Baixar MP3</a>
-                <button type="button" id="continue-payment-btn" class="cta-btn-green">Continuar para pagamento →</button>
+                <button type="button" id="continue-payment-btn" class="cta-btn-green full">Continuar para pagamento →</button>
               </div>
             </div>
 
@@ -272,7 +278,14 @@
 
             <div id="full-song-result" class="result" hidden>
               <h3>Sua música completa</h3>
-              <audio id="full-audio-player" controls></audio>
+              <audio id="full-audio-player" preload="metadata"></audio>
+              <div class="player">
+                <button type="button" id="full-player-toggle" class="player-toggle" aria-label="Reproduzir">▶</button>
+                <div class="player-track" id="full-player-track">
+                  <div class="player-fill" id="full-player-fill"></div>
+                </div>
+                <span class="player-time" id="full-player-time">0:00 / 0:00</span>
+              </div>
               <a id="full-download-link" class="secondary-btn" download>Baixar MP3</a>
             </div>
           </section>

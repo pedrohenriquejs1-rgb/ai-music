@@ -212,7 +212,6 @@ const generateBtn = document.getElementById("generate-btn");
 const statusEl = document.getElementById("status");
 const resultEl = document.getElementById("result");
 const audioPlayer = document.getElementById("audio-player");
-const downloadLink = document.getElementById("download-link");
 
 voiceButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -287,27 +286,73 @@ function stopGeneratingCard() {
 
 const PREVIEW_SECONDS = 40;
 
-function capPreviewPlayback() {
-  audioPlayer.removeEventListener("timeupdate", onPreviewTimeUpdate);
-  audioPlayer.addEventListener("timeupdate", onPreviewTimeUpdate);
-  downloadLink.setAttribute("aria-disabled", "true");
-  downloadLink.href = "#";
-  downloadLink.title = "Disponível após o pagamento";
-}
+// ---- Player customizado (usado na prévia e na música completa) ----
+function setupCustomPlayer(audioEl, toggleBtn, trackEl, fillEl, timeEl) {
+  let capSeconds = null;
 
-function onPreviewTimeUpdate() {
-  if (audioPlayer.currentTime >= PREVIEW_SECONDS) {
-    audioPlayer.pause();
-    audioPlayer.currentTime = PREVIEW_SECONDS;
+  function formatTime(seconds) {
+    const total = Math.max(0, Math.floor(seconds));
+    const m = Math.floor(total / 60);
+    const r = total % 60;
+    return `${m}:${String(r).padStart(2, "0")}`;
   }
+
+  function effectiveDuration() {
+    return capSeconds ?? (audioEl.duration || 0);
+  }
+
+  function updateUI() {
+    const duration = effectiveDuration();
+    const current = Math.min(audioEl.currentTime, duration || audioEl.currentTime);
+    const pct = duration ? (current / duration) * 100 : 0;
+    fillEl.style.width = `${pct}%`;
+    timeEl.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    if (audioEl.paused) audioEl.play();
+    else audioEl.pause();
+  });
+
+  audioEl.addEventListener("play", () => (toggleBtn.textContent = "⏸"));
+  audioEl.addEventListener("pause", () => (toggleBtn.textContent = "▶"));
+  audioEl.addEventListener("ended", () => (toggleBtn.textContent = "▶"));
+
+  audioEl.addEventListener("timeupdate", () => {
+    if (capSeconds && audioEl.currentTime >= capSeconds) {
+      audioEl.pause();
+      audioEl.currentTime = capSeconds;
+    }
+    updateUI();
+  });
+
+  audioEl.addEventListener("loadedmetadata", updateUI);
+
+  trackEl.addEventListener("click", (e) => {
+    const rect = trackEl.getBoundingClientRect();
+    const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+    const duration = effectiveDuration();
+    if (duration) audioEl.currentTime = ratio * duration;
+  });
+
+  return {
+    setCap(seconds) {
+      capSeconds = seconds;
+      audioEl.pause();
+      audioEl.currentTime = 0;
+      toggleBtn.textContent = "▶";
+      updateUI();
+    },
+  };
 }
 
-function unlockFullPlayback() {
-  audioPlayer.removeEventListener("timeupdate", onPreviewTimeUpdate);
-  downloadLink.removeAttribute("aria-disabled");
-  downloadLink.href = lastGeneration.audioUrl;
-  downloadLink.title = "";
-}
+const previewPlayer = setupCustomPlayer(
+  audioPlayer,
+  document.getElementById("player-toggle"),
+  document.getElementById("player-track"),
+  document.getElementById("player-fill"),
+  document.getElementById("player-time")
+);
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -340,7 +385,7 @@ form.addEventListener("submit", async (e) => {
     }
 
     audioPlayer.src = data.audioUrl;
-    capPreviewPlayback();
+    previewPlayer.setCap(PREVIEW_SECONDS);
     resultEl.hidden = false;
     setStatus("");
     lastGeneration = { prompt, lyrics, audioUrl: data.audioUrl };
@@ -369,6 +414,14 @@ const copyPixBtn = document.getElementById("copy-pix-btn");
 const fullSongResult = document.getElementById("full-song-result");
 const fullAudioPlayer = document.getElementById("full-audio-player");
 const fullDownloadLink = document.getElementById("full-download-link");
+
+const fullPlayer = setupCustomPlayer(
+  fullAudioPlayer,
+  document.getElementById("full-player-toggle"),
+  document.getElementById("full-player-track"),
+  document.getElementById("full-player-fill"),
+  document.getElementById("full-player-time")
+);
 
 let pollTimer = null;
 
@@ -444,8 +497,8 @@ async function checkPixStatus(paymentId) {
 }
 
 function unlockPaidSong() {
-  unlockFullPlayback();
   fullAudioPlayer.src = lastGeneration.audioUrl;
+  fullPlayer.setCap(null);
   fullDownloadLink.href = lastGeneration.audioUrl;
   fullSongResult.hidden = false;
   pixResult.hidden = true;
