@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Música IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Hero -->
+  <header class="hero">
+    <div class="logo">🎵 <span>Minha Música IA</span></div>
+
+    <p class="eyebrow">MÚSICA PERSONALIZADA FEITA POR INTELIGÊNCIA ARTIFICIAL</p>
+    <h1>Transforme sua história<br />em uma música única.</h1>
+    <p class="hero-subtitle">
+      Conte o tema, escolha o estilo e deixe a IA escrever a letra e compor a música pra você.
+    </p>
+
+    <div class="badges">
+      <span>✓ Letra com IA</span>
+      <span>✓ Música cantada</span>
+      <span>✓ Até 4 minutos</span>
+    </div>
+
+    <button type="button" id="start-btn" class="cta-btn">Criar minha música agora →</button>
+  </header>
+
+  <!-- App card -->
+  <main class="app-card" id="app-card">
+    <nav class="steps">
+      <button type="button" class="step-btn active" data-tab="story-tab">
+        <span class="step-number">1</span>
+        <span class="step-label">História</span>
+      </button>
+      <span class="step-line"></span>
+      <button type="button" class="step-btn" data-tab="lyrics-tab">
+        <span class="step-number">2</span>
+        <span class="step-label">Letra</span>
+      </button>
+      <span class="step-line"></span>
+      <button type="button" class="step-btn" data-tab="music-tab">
+        <span class="step-number">3</span>
+        <span class="step-label">Música</span>
+      </button>
+      <span class="step-line"></span>
+      <button type="button" class="step-btn" data-tab="payment-tab">
+        <span class="step-number">4</span>
+        <span class="step-label">Pagamento</span>
+      </button>
+    </nav>
+
+    <!-- Etapa 1: História -->
+    <section id="story-tab" class="tab-panel active">
+      <p class="panel-eyebrow">PASSO 1 DE 4</p>
+      <h2 class="panel-title">Como você quer começar?</h2>
+      <p class="subtitle">Escolha uma opção. Você pode ajustar tudo depois.</p>
+
+      <div class="option-cards">
+        <button type="button" class="option-card selected" data-mode="ai">
+          <span class="option-icon">🎵</span>
+          <span class="option-text">
+            <span class="option-title">Quero que criem a letra para mim</span>
+            <span class="option-desc"
+              >Conte sua história e a IA cria uma letra exclusiva e personalizada.
+              <strong>Mais escolhido.</strong></span
+            >
+          </span>
+        </button>
+        <button type="button" class="option-card" data-mode="own">
+          <span class="option-icon">✍️</span>
+          <span class="option-text">
+            <span class="option-title">Já tenho minha própria letra</span>
+            <span class="option-desc">Cole sua letra e nós a transformamos em uma música completa.</span>
+          </span>
+        </button>
+      </div>
+
+      <button type="button" id="story-continue-btn" class="cta-btn full">Continuar →</button>
+    </section>
+
+    <!-- Etapa 2: Letra -->
+    <section id="lyrics-tab" class="tab-panel">
+      <p class="panel-eyebrow">PASSO 2 DE 4</p>
+      <h2 class="panel-title" id="lyrics-step-title">Vamos escrever a letra</h2>
+      <p class="subtitle" id="lyrics-step-subtitle">
+        Preencha as informações abaixo e o ChatGPT escreve a letra pra você.
+      </p>
+
+      <form id="lyrics-form">
+        <label for="lyrics-theme">Tema / assunto</label>
+        <input
+          type="text"
+          id="lyrics-theme"
+          placeholder="Ex: uma saudade de alguém especial"
+          required
+        />
+
+        <label for="lyrics-genre">Gênero musical</label>
+        <input
+          type="text"
+          id="lyrics-genre"
+          placeholder="Ex: sertanejo, pop, rap, MPB..."
+          required
+        />
+
+        <label for="lyrics-mood">Humor / emoção</label>
+        <input
+          type="text"
+          id="lyrics-mood"
+          placeholder="Ex: alegre, triste, motivacional, nostálgico..."
+          required
+        />
+
+        <label for="lyrics-extra">Detalhes adicionais (opcional)</label>
+        <textarea
+          id="lyrics-extra"
+          placeholder="Ex: mencionar praia e verão, ter um refrão fácil de cantar junto..."
+        ></textarea>
+
+        <button type="submit" id="lyrics-btn" class="cta-btn full">Gerar Letra →</button>
+      </form>
+
+      <div id="own-lyrics-block" hidden>
+        <label for="own-lyrics-input">Cole sua letra</label>
+        <textarea
+          id="own-lyrics-input"
+          placeholder="Cole aqui a letra completa da sua música..."
+        ></textarea>
+
+        <button type="button" id="own-lyrics-continue-btn" class="cta-btn full">Continuar →</button>
+      </div>
+
+      <div id="lyrics-status" class="status" hidden></div>
+
+      <div id="lyrics-result" class="result" hidden>
+        <h3>Sua letra</h3>
+        <textarea id="lyrics-output"></textarea>
+        <div class="result-actions">
+          <button type="button" id="copy-lyrics-btn" class="secondary-btn">Copiar</button>
+          <button type="button" id="use-lyrics-btn" class="cta-btn">Continuar para música →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Etapa 3: Música (prévia) -->
+    <section id="music-tab" class="tab-panel">
+      <p class="panel-eyebrow">PASSO 3 DE 4</p>
+      <h2 class="panel-title">Agora, vamos compor</h2>
+      <p class="subtitle">Descreva o estilo, ritmo e instrumentos da música que você imagina.</p>
+
+      <form id="generate-form">
+        <label for="prompt">Estilo, ritmo e instrumentos</label>
+        <textarea
+          id="prompt"
+          placeholder="Ex: lo-fi hip hop relaxante, batida lenta, piano suave e bateria leve"
+          required
+        ></textarea>
+
+        <label for="lyrics">Letra (obrigatória — a prévia será cantada com essa letra)</label>
+        <textarea
+          id="lyrics"
+          placeholder="Cole aqui a letra a ser cantada, ou gere uma no Passo 1"
+          required
+        ></textarea>
+        <p class="field-hint">A prévia tem cerca de 30 segundos e usa apenas o início da letra.</p>
+
+        <label>Voz do(a) cantor(a)</label>
+        <div class="voice-toggle">
+          <button type="button" class="voice-btn selected" data-voice="feminina">Feminina</button>
+          <button type="button" class="voice-btn" data-voice="masculina">Masculina</button>
+        </div>
+        <input type="hidden" id="voice-gender" value="feminina" />
+
+        <button type="submit" id="generate-btn" class="cta-btn full">Gerar Prévia →</button>
+      </form>
+
+      <div id="status" class="status" hidden></div>
+
+      <div id="result" class="result" hidden>
+        <h3>Sua prévia</h3>
+        <audio id="audio-player" controls></audio>
+        <div class="result-actions">
+          <a id="download-link" class="secondary-btn" download>Baixar MP3</a>
+          <button type="button" id="continue-payment-btn" class="cta-btn">Continuar para pagamento →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Etapa 4: Pagamento -->
+    <section id="payment-tab" class="tab-panel">
+      <p class="panel-eyebrow">PASSO 4 DE 4</p>
+      <h2 class="panel-title">Finalize seu pedido</h2>
+      <p class="subtitle">Pague para receber a música completa, em alta qualidade, sem cortes.</p>
+
+      <div class="price-card">
+        <span class="price-label">Música completa personalizada</span>
+        <span class="price-value">R$ 29,90</span>
+      </div>
+
+      <form id="pix-form">
+        <label for="pix-email">Seu e-mail</label>
+        <input type="email" id="pix-email" placeholder="seunome@email.com" required />
+
+        <button type="submit" id="checkout-btn" class="cta-btn full">Gerar Pix →</button>
+      </form>
+
+      <div id="checkout-status" class="status" hidden></div>
+
+      <div id="pix-result" class="result" hidden>
+        <h3>Pague com Pix</h3>
+        <img id="pix-qr-image" alt="QR Code Pix" />
+        <label for="pix-copy-paste">Pix copia e cola</label>
+        <textarea id="pix-copy-paste" readonly></textarea>
+        <button type="button" id="copy-pix-btn" class="secondary-btn">Copiar código Pix</button>
+        <p class="field-hint">Assim que o pagamento for confirmado, sua música completa aparece aqui automaticamente.</p>
+      </div>
+
+      <div id="full-song-result" class="result" hidden>
+        <h3>Sua música completa</h3>
+        <audio id="full-audio-player" controls></audio>
+        <a id="full-download-link" class="secondary-btn" download>Baixar MP3</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

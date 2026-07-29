@@ -1,0 +1,494 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --coral: #ef4d67;
+  --coral-dark: #d93a54;
+  --orange: #f2794a;
+  --gradient: linear-gradient(90deg, var(--coral), var(--orange));
+  --dark-bg: #170f11;
+  --card-bg: #fdf1ee;
+  --card-text: #2a1c1c;
+  --card-muted: #7a6664;
+  --input-border: #f0d9d4;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--dark-bg);
+  color: #f1f1f1;
+}
+
+/* ---- Hero ---- */
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  background: radial-gradient(circle at 50% 0%, #2a1416 0%, var(--dark-bg) 60%);
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--coral);
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  color: var(--coral);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1.15;
+  margin: 0 0 20px;
+  max-width: 800px;
+}
+
+.hero-subtitle {
+  color: #d8c9c9;
+  font-size: 1.05rem;
+  max-width: 560px;
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.badges span {
+  background: #241618;
+  border: 1px solid #3a2427;
+  color: #e8dcdc;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ---- Buttons ---- */
+.cta-btn {
+  background: var(--gradient);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(239, 77, 103, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.cta-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(239, 77, 103, 0.45);
+}
+
+.cta-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cta-btn.full {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.secondary-btn {
+  background: white;
+  color: var(--card-text);
+  border: 1px solid var(--input-border);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.secondary-btn:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+
+/* ---- App card ---- */
+.app-card {
+  max-width: 620px;
+  margin: -60px auto 60px;
+  background: var(--card-bg);
+  color: var(--card-text);
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+/* ---- Steps ---- */
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.step-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--card-muted);
+  padding: 0;
+}
+
+.step-number {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ecdcd8;
+  color: var(--card-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.step-btn.active .step-number {
+  background: var(--gradient);
+  color: white;
+}
+
+.step-btn.active .step-label {
+  color: var(--card-text);
+  font-weight: 700;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.step-line {
+  width: 60px;
+  height: 2px;
+  background: var(--input-border);
+}
+
+/* ---- Panels & forms ---- */
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.panel-eyebrow {
+  color: var(--coral);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+  text-align: center;
+}
+
+.panel-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.7rem;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.subtitle {
+  color: var(--card-muted);
+  text-align: center;
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+}
+
+/* ---- Option cards (Passo 1) ---- */
+.option-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+  background: white;
+  border: 2px solid var(--input-border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.option-card.selected {
+  border-color: var(--coral);
+  background: #fff5f3;
+}
+
+.option-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: #fde3df;
+}
+
+.option-card[data-mode="own"] .option-icon {
+  background: #d9f2ec;
+}
+
+.option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.option-title {
+  font-weight: 700;
+  color: var(--card-text);
+}
+
+.option-desc {
+  font-size: 0.85rem;
+  color: var(--card-muted);
+  line-height: 1.4;
+}
+
+.option-desc strong {
+  color: var(--coral);
+}
+
+.field-hint {
+  font-size: 0.8rem;
+  color: var(--card-muted);
+  margin: 4px 0 0;
+}
+
+.voice-toggle {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.voice-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--input-border);
+  background: white;
+  color: var(--card-muted);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.voice-btn.selected {
+  background: var(--gradient);
+  color: white;
+  border-color: transparent;
+}
+
+.price-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1.5px solid var(--input-border);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.price-label {
+  color: var(--card-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.price-value {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--card-text);
+}
+
+form,
+#own-lyrics-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#own-lyrics-block[hidden] {
+  display: none;
+}
+
+#own-lyrics-input {
+  min-height: 180px;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--card-text);
+  margin-top: 14px;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--input-border);
+  background: white;
+  color: var(--card-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--coral);
+}
+
+textarea {
+  min-height: 80px;
+}
+
+#lyrics-extra,
+#prompt {
+  min-height: 70px;
+}
+
+#lyrics {
+  min-height: 110px;
+}
+
+input[type="range"] {
+  accent-color: var(--coral);
+  margin-top: 8px;
+}
+
+/* ---- Status & result ---- */
+.status {
+  margin-top: 18px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #f4e6e2;
+  color: var(--card-text);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.status.error {
+  background: #fbdede;
+  color: #a3243f;
+}
+
+.result {
+  margin-top: 24px;
+  background: white;
+  border: 1.5px solid var(--input-border);
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.result h3 {
+  margin: 0 0 14px;
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+#lyrics-output {
+  min-height: 220px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+.result audio {
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.result-actions button,
+.result-actions a {
+  flex: 1;
+}
+
+#pix-qr-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  border: 1.5px solid var(--input-border);
+  margin-bottom: 16px;
+}
+
+#pix-copy-paste {
+  min-height: 70px;
+  width: 100%;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+#copy-pix-btn {
+  width: 100%;
+  margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .app-card {
+    margin: -40px 16px 40px;
+    padding: 28px 20px;
+  }
+}
