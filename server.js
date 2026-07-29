@@ -37,7 +37,7 @@ const openai = new OpenAI({
 app.use(express.json());
 app.use(express.static("public"));
 
-function truncateLyricsForPreview(lyrics, maxChars = 400) {
+function truncateLyricsForPreview(lyrics, maxChars = 520) {
   const trimmed = lyrics.trim();
   if (trimmed.length <= maxChars) return trimmed;
 

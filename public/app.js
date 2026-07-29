@@ -1,22 +1,36 @@
-// ---- Etapas ----
-const tabButtons = document.querySelectorAll(".step-btn");
+// ---- Modal & Etapas ----
+const modalOverlay = document.getElementById("modal-overlay");
+const stepEls = document.querySelectorAll(".mm-step");
 const tabPanels = document.querySelectorAll(".tab-panel");
 
-document.getElementById("start-btn").addEventListener("click", () => {
-  document.getElementById("app-card").scrollIntoView({ behavior: "smooth" });
-});
+const STEP_ORDER = ["story-tab", "lyrics-tab", "music-tab", "payment-tab"];
 
-function goToStep(tabId) {
-  tabButtons.forEach((b) => b.classList.remove("active"));
-  tabPanels.forEach((p) => p.classList.remove("active"));
-  document.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
-  document.getElementById(tabId).classList.add("active");
-  document.getElementById("app-card").scrollIntoView({ behavior: "smooth" });
+function openModal() {
+  modalOverlay.hidden = false;
 }
 
-tabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => goToStep(btn.dataset.tab));
-});
+function closeModal() {
+  modalOverlay.hidden = true;
+}
+
+document.getElementById("start-btn").addEventListener("click", openModal);
+document.getElementById("modal-close-btn").addEventListener("click", closeModal);
+
+function goToStep(tabId) {
+  const stepIndex = STEP_ORDER.indexOf(tabId);
+
+  tabPanels.forEach((p) => p.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
+
+  stepEls.forEach((el) => {
+    const n = Number(el.dataset.step) - 1;
+    el.classList.remove("is-active", "is-done");
+    if (n < stepIndex) el.classList.add("is-done");
+    else if (n === stepIndex) el.classList.add("is-active");
+  });
+
+  modalOverlay.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 // ---- Etapa 1: História ----
 const optionCards = document.querySelectorAll(".option-card");
@@ -57,6 +71,33 @@ document.getElementById("own-lyrics-continue-btn").addEventListener("click", () 
   document.getElementById("lyrics").value = ownLyrics;
   goToStep("music-tab");
 });
+
+// ---- Chips: gênero e humor ----
+function setupChipGrid(gridId, hiddenInputId, selectId) {
+  const grid = document.getElementById(gridId);
+  const hiddenInput = document.getElementById(hiddenInputId);
+  const select = selectId ? document.getElementById(selectId) : null;
+  const chips = grid.querySelectorAll(".chip");
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chips.forEach((c) => c.classList.remove("selected"));
+      chip.classList.add("selected");
+      hiddenInput.value = chip.dataset.value;
+      if (select) select.value = "";
+    });
+  });
+
+  if (select) {
+    select.addEventListener("change", () => {
+      chips.forEach((c) => c.classList.remove("selected"));
+      hiddenInput.value = select.value;
+    });
+  }
+}
+
+setupChipGrid("genre-chip-grid", "lyrics-genre", "lyrics-genre-select");
+setupChipGrid("mood-chip-grid", "lyrics-mood");
 
 // ---- Gerar Letra ----
 const lyricsBtn = document.getElementById("lyrics-btn");
