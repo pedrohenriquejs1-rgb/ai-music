@@ -113,8 +113,43 @@ function setLyricsStatus(message, isError = false) {
   lyricsStatus.classList.toggle("error", isError);
 }
 
+// ---- Limite de gerações (letra e prévia) ----
+const MAX_GENERATIONS = 3;
+const lyricsGenerationCounter = document.getElementById("lyrics-generation-counter");
+const musicGenerationCounter = document.getElementById("music-generation-counter");
+let lyricsGenerationCount = 0;
+let musicGenerationCount = 0;
+
+function registerLyricsGeneration() {
+  lyricsGenerationCount += 1;
+  lyricsGenerationCounter.hidden = false;
+  lyricsGenerationCounter.textContent = `Versões geradas: ${lyricsGenerationCount} de ${MAX_GENERATIONS}`;
+
+  if (lyricsGenerationCount >= MAX_GENERATIONS) {
+    lyricsBtn.disabled = true;
+    lyricsBtn.textContent = "Limite de gerações atingido";
+    lyricsGenerationCounter.classList.add("limit-reached");
+    lyricsGenerationCounter.textContent = `Limite de ${MAX_GENERATIONS} gerações de letra atingido.`;
+  }
+}
+
+function registerMusicGeneration() {
+  musicGenerationCount += 1;
+  musicGenerationCounter.hidden = false;
+  musicGenerationCounter.textContent = `Versões geradas: ${musicGenerationCount} de ${MAX_GENERATIONS}`;
+
+  if (musicGenerationCount >= MAX_GENERATIONS) {
+    generateBtn.disabled = true;
+    generateBtn.textContent = "Limite de gerações atingido";
+    musicGenerationCounter.classList.add("limit-reached");
+    musicGenerationCounter.textContent = `Limite de ${MAX_GENERATIONS} gerações de prévia atingido.`;
+  }
+}
+
 lyricsForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  if (lyricsGenerationCount >= MAX_GENERATIONS) return;
 
   const theme = document.getElementById("lyrics-theme").value.trim();
   const genre = document.getElementById("lyrics-genre").value.trim();
@@ -143,10 +178,11 @@ lyricsForm.addEventListener("submit", async (e) => {
     lyricsOutput.value = data.lyrics;
     lyricsResult.hidden = false;
     setLyricsStatus("");
+    registerLyricsGeneration();
   } catch (err) {
     setLyricsStatus(err.message, true);
   } finally {
-    lyricsBtn.disabled = false;
+    if (lyricsGenerationCount < MAX_GENERATIONS) lyricsBtn.disabled = false;
   }
 });
 
@@ -194,6 +230,61 @@ function setStatus(message, isError = false) {
 
 let lastGeneration = null;
 
+// ---- Card "compondo" (cronômetro, barra de progresso, mensagens) ----
+const generatingCard = document.getElementById("generating-card");
+const countdownValue = document.getElementById("countdown-value");
+const progressFill = document.getElementById("progress-fill");
+const generatingStatus = document.getElementById("generating-status");
+
+const GENERATING_MESSAGES = [
+  "Preparando a voz da canção...",
+  "Compondo a melodia...",
+  "Ajustando a harmonia entre voz e instrumentos...",
+  "Sincronizando a voz com cada trecho da letra...",
+  "Afinando os últimos detalhes...",
+];
+
+const ESTIMATED_SECONDS = 100;
+let generatingTimer = null;
+let generatingElapsed = 0;
+
+function formatCountdown(seconds) {
+  const s = Math.max(seconds, 0);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, "0")}`;
+}
+
+function startGeneratingCard() {
+  generatingElapsed = 0;
+  generatingCard.hidden = false;
+  countdownValue.textContent = formatCountdown(ESTIMATED_SECONDS);
+  progressFill.style.width = "0%";
+  generatingStatus.textContent = GENERATING_MESSAGES[0];
+
+  generatingTimer = setInterval(() => {
+    generatingElapsed += 1;
+
+    const remaining = ESTIMATED_SECONDS - generatingElapsed;
+    countdownValue.textContent =
+      remaining > 0 ? formatCountdown(remaining) : "quase lá...";
+
+    const progressPct = Math.min((generatingElapsed / ESTIMATED_SECONDS) * 100, 96);
+    progressFill.style.width = `${progressPct}%`;
+
+    const msgIndex = Math.min(
+      Math.floor(generatingElapsed / 20),
+      GENERATING_MESSAGES.length - 1
+    );
+    generatingStatus.textContent = GENERATING_MESSAGES[msgIndex];
+  }, 1000);
+}
+
+function stopGeneratingCard() {
+  clearInterval(generatingTimer);
+  generatingCard.hidden = true;
+}
+
 const PREVIEW_SECONDS = 40;
 
 function capPreviewPlayback() {
@@ -221,6 +312,8 @@ function unlockFullPlayback() {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  if (musicGenerationCount >= MAX_GENERATIONS) return;
+
   const prompt = promptInput.value.trim();
   const lyrics = lyricsInput.value.trim();
   if (!prompt || lyrics.length < 10) {
@@ -230,7 +323,8 @@ form.addEventListener("submit", async (e) => {
 
   generateBtn.disabled = true;
   resultEl.hidden = true;
-  setStatus("Gerando sua música... isso pode levar de 1 a 3 minutos.");
+  setStatus("");
+  startGeneratingCard();
 
   try {
     const res = await fetch("/api/generate", {
@@ -250,10 +344,12 @@ form.addEventListener("submit", async (e) => {
     resultEl.hidden = false;
     setStatus("");
     lastGeneration = { prompt, lyrics, audioUrl: data.audioUrl };
+    registerMusicGeneration();
   } catch (err) {
     setStatus(err.message, true);
   } finally {
-    generateBtn.disabled = false;
+    stopGeneratingCard();
+    if (musicGenerationCount < MAX_GENERATIONS) generateBtn.disabled = false;
   }
 });
 

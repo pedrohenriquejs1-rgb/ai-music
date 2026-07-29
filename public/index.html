@@ -175,6 +175,8 @@
                 <button type="button" id="use-lyrics-btn" class="cta-btn">Continuar para música →</button>
               </div>
             </div>
+
+            <p class="generation-counter" id="lyrics-generation-counter" hidden></p>
           </section>
 
           <!-- Etapa 3: Música (prévia) -->
@@ -211,6 +213,22 @@
 
             <div id="status" class="status" hidden></div>
 
+            <div id="generating-card" class="generating-card" hidden>
+              <p class="generating-eyebrow">COMPONDO AGORA</p>
+              <h3 class="generating-title">Sua música está nascendo</h3>
+
+              <div class="countdown-box">
+                <span class="countdown-label">PREVISÃO DE CRIAÇÃO</span>
+                <span class="countdown-value" id="countdown-value">1:40</span>
+              </div>
+
+              <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+              </div>
+
+              <p class="generating-status" id="generating-status">Preparando a voz da canção...</p>
+            </div>
+
             <div id="result" class="result" hidden>
               <h3>Sua prévia</h3>
               <audio id="audio-player" controls></audio>
@@ -219,6 +237,8 @@
                 <button type="button" id="continue-payment-btn" class="cta-btn-green">Continuar para pagamento →</button>
               </div>
             </div>
+
+            <p class="generation-counter" id="music-generation-counter" hidden></p>
           </section>
 
           <!-- Etapa 4: Pagamento -->
