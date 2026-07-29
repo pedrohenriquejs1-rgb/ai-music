@@ -1,14 +1,13 @@
 require("dotenv").config();
 const express = require("express");
-const Replicate = require("replicate");
 const OpenAI = require("openai");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-if (!process.env.REPLICATE_API_TOKEN) {
+if (!process.env.SUNO_API_KEY) {
   console.warn(
-    "Aviso: REPLICATE_API_TOKEN nao definido. Crie um arquivo .env baseado no .env.example."
+    "Aviso: SUNO_API_KEY nao definido. A geracao de musica nao vai funcionar sem ele."
   );
 }
 
@@ -25,10 +24,8 @@ if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
 }
 
 const FULL_SONG_PRICE = 29.9;
-
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
-});
+const PREVIEW_SECONDS = 40;
+const SUNO_CALLBACK_URL = process.env.SUNO_CALLBACK_URL || "https://example.com/";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -37,17 +34,62 @@ const openai = new OpenAI({
 app.use(express.json());
 app.use(express.static("public"));
 
-function truncateLyricsForPreview(lyrics, maxChars = 520) {
-  const trimmed = lyrics.trim();
-  if (trimmed.length <= maxChars) return trimmed;
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  const cut = trimmed.slice(0, maxChars);
-  const lastNewline = cut.lastIndexOf("\n");
-  return (lastNewline > 50 ? cut.slice(0, lastNewline) : cut).trim();
+async function generateSunoSong({ style, lyrics, title, vocalGender }) {
+  const genRes = await fetch("https://api.sunoapi.org/api/v1/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.SUNO_API_KEY}`,
+    },
+    body: JSON.stringify({
+      customMode: true,
+      instrumental: false,
+      model: "V4_5",
+      prompt: lyrics,
+      style: style.slice(0, 900),
+      title: title.slice(0, 80),
+      vocalGender,
+      callBackUrl: SUNO_CALLBACK_URL,
+    }),
+  });
+
+  const genData = await genRes.json();
+  if (!genRes.ok || !genData.data?.taskId) {
+    throw new Error(genData.msg || "Falha ao iniciar a geração da música.");
+  }
+
+  const taskId = genData.data.taskId;
+
+  for (let i = 0; i < 50; i++) {
+    await sleep(6000);
+
+    const statusRes = await fetch(
+      `https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`,
+      { headers: { Authorization: `Bearer ${process.env.SUNO_API_KEY}` } }
+    );
+    const statusData = await statusRes.json();
+    const status = statusData.data?.status;
+
+    if (status === "SUCCESS") {
+      const track = statusData.data.response?.sunoData?.[0];
+      if (!track) throw new Error("Música gerada, mas sem áudio retornado.");
+      return { audioUrl: track.audioUrl, duration: track.duration };
+    }
+
+    if (status && status.includes("FAILED")) {
+      throw new Error("A geração da música falhou.");
+    }
+  }
+
+  throw new Error("Tempo esgotado esperando a música ficar pronta.");
 }
 
 app.post("/api/generate", async (req, res) => {
-  const { prompt, lyrics, full } = req.body;
+  const { prompt, lyrics, voiceGender } = req.body;
 
   if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
     return res.status(400).json({ error: "Descreva o estilo da musica que voce quer gerar." });
@@ -57,21 +99,15 @@ app.post("/api/generate", async (req, res) => {
     return res.status(400).json({ error: "Adicione uma letra (pelo menos 10 caracteres) para gerar a prévia cantada." });
   }
 
-  const previewLyrics = truncateLyricsForPreview(lyrics, full ? 600 : 400);
-
   try {
-    const output = await replicate.run(
-      "minimax/music-1.5:70c8395540eae909be2c09a0b4897d22ee2455a5e5c9826b71161743b5cc45f1",
-      {
-        input: {
-          prompt: prompt.trim().slice(0, 300),
-          lyrics: previewLyrics,
-        },
-      }
-    );
+    const { audioUrl, duration } = await generateSunoSong({
+      style: prompt.trim(),
+      lyrics: lyrics.trim(),
+      title: prompt.trim().slice(0, 60) || "Minha Música",
+      vocalGender: voiceGender === "masculina" ? "m" : "f",
+    });
 
-    const audioUrl = Array.isArray(output) ? output[0] : output;
-    res.json({ audioUrl });
+    res.json({ audioUrl, duration, previewSeconds: PREVIEW_SECONDS });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Falha ao gerar a musica. Verifique sua API key e tente novamente." });

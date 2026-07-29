@@ -194,6 +194,30 @@ function setStatus(message, isError = false) {
 
 let lastGeneration = null;
 
+const PREVIEW_SECONDS = 40;
+
+function capPreviewPlayback() {
+  audioPlayer.removeEventListener("timeupdate", onPreviewTimeUpdate);
+  audioPlayer.addEventListener("timeupdate", onPreviewTimeUpdate);
+  downloadLink.setAttribute("aria-disabled", "true");
+  downloadLink.href = "#";
+  downloadLink.title = "Disponível após o pagamento";
+}
+
+function onPreviewTimeUpdate() {
+  if (audioPlayer.currentTime >= PREVIEW_SECONDS) {
+    audioPlayer.pause();
+    audioPlayer.currentTime = PREVIEW_SECONDS;
+  }
+}
+
+function unlockFullPlayback() {
+  audioPlayer.removeEventListener("timeupdate", onPreviewTimeUpdate);
+  downloadLink.removeAttribute("aria-disabled");
+  downloadLink.href = lastGeneration.audioUrl;
+  downloadLink.title = "";
+}
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -204,17 +228,15 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const fullPrompt = `${prompt}, voz ${voiceGenderInput.value}`;
-
   generateBtn.disabled = true;
   resultEl.hidden = true;
-  setStatus("Gerando sua prévia... isso pode levar de 30s a alguns minutos.");
+  setStatus("Gerando sua música... isso pode levar de 1 a 3 minutos.");
 
   try {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: fullPrompt, lyrics }),
+      body: JSON.stringify({ prompt, lyrics, voiceGender: voiceGenderInput.value }),
     });
 
     const data = await res.json();
@@ -224,10 +246,10 @@ form.addEventListener("submit", async (e) => {
     }
 
     audioPlayer.src = data.audioUrl;
-    downloadLink.href = data.audioUrl;
+    capPreviewPlayback();
     resultEl.hidden = false;
     setStatus("");
-    lastGeneration = { prompt: fullPrompt, lyrics };
+    lastGeneration = { prompt, lyrics, audioUrl: data.audioUrl };
   } catch (err) {
     setStatus(err.message, true);
   } finally {
@@ -318,34 +340,18 @@ async function checkPixStatus(paymentId) {
 
     if (data.status === "approved") {
       clearInterval(pollTimer);
-      setCheckoutStatus("Pagamento confirmado! Gerando sua música completa...");
-      await generateFullSong();
+      unlockPaidSong();
     }
   } catch (err) {
     // ignora falhas pontuais do polling
   }
 }
 
-async function generateFullSong() {
-  try {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: lastGeneration.prompt, lyrics: lastGeneration.lyrics, full: true }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || "Erro ao gerar a música completa.");
-    }
-
-    fullAudioPlayer.src = data.audioUrl;
-    fullDownloadLink.href = data.audioUrl;
-    fullSongResult.hidden = false;
-    pixResult.hidden = true;
-    setCheckoutStatus("");
-  } catch (err) {
-    setCheckoutStatus(err.message, true);
-  }
+function unlockPaidSong() {
+  unlockFullPlayback();
+  fullAudioPlayer.src = lastGeneration.audioUrl;
+  fullDownloadLink.href = lastGeneration.audioUrl;
+  fullSongResult.hidden = false;
+  pixResult.hidden = true;
+  setCheckoutStatus("Pagamento confirmado! Sua música completa está liberada abaixo.");
 }
