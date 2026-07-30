@@ -22,6 +22,24 @@ function closeModal() {
 document.getElementById("start-btn").addEventListener("click", openModal);
 document.getElementById("modal-close-btn").addEventListener("click", closeModal);
 
+// ---- Depoimentos ----
+document.getElementById("testimonials-cta-btn").addEventListener("click", openModal);
+
+const lightboxOverlay = document.getElementById("lightbox-overlay");
+const lightboxImage = document.getElementById("lightbox-image");
+
+document.querySelectorAll(".testimonials-grid img").forEach((img) => {
+  img.addEventListener("click", () => {
+    lightboxImage.src = img.src;
+    lightboxOverlay.hidden = false;
+  });
+});
+
+lightboxOverlay.addEventListener("click", () => {
+  lightboxOverlay.hidden = true;
+  lightboxImage.src = "";
+});
+
 document.querySelectorAll(".back-link").forEach((btn) => {
   btn.addEventListener("click", () => goToStep(btn.dataset.back));
 });

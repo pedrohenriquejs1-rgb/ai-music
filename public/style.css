@@ -169,6 +169,80 @@ body {
   font-weight: 500;
 }
 
+/* ---- Depoimentos ---- */
+.testimonials {
+  padding: 60px 20px 70px;
+  text-align: center;
+  background: var(--dark-bg);
+}
+
+.testimonials-eyebrow {
+  color: var(--coral-light);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0 0 12px;
+}
+
+.testimonials-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  color: white;
+  margin: 0 0 12px;
+}
+
+.testimonials-subtitle {
+  color: #d8c9c9;
+  font-size: 1rem;
+  margin: 0 0 36px;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto 40px;
+}
+
+.testimonials-grid img {
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  cursor: zoom-in;
+  transition: transform 0.2s;
+}
+
+.testimonials-grid img:hover {
+  transform: translateY(-4px);
+}
+
+/* ---- Lightbox ---- */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 999;
+  cursor: zoom-out;
+}
+
+.lightbox-overlay[hidden] {
+  display: none;
+}
+
+.lightbox-overlay img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
 /* ---- Buttons ---- */
 .cta-btn {
   background: var(--gradient);
