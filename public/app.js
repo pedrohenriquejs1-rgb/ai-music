@@ -159,23 +159,56 @@ const musicGenerationCounter = document.getElementById("music-generation-counter
 let lyricsGenerationCount = 0;
 let musicGenerationCount = 0;
 
-function registerLyricsGeneration() {
-  lyricsGenerationCount += 1;
+// ---- Persistência dos limites (sobrevive a reload/fechar a página) ----
+const GENERATION_COUNTS_KEY = "generationCounts";
+
+function saveGenerationCounts() {
+  try {
+    localStorage.setItem(
+      GENERATION_COUNTS_KEY,
+      JSON.stringify({ lyrics: lyricsGenerationCount, music: musicGenerationCount })
+    );
+  } catch (err) {
+    // localStorage indisponível (modo privado etc.) — segue sem persistir
+  }
+}
+
+function loadGenerationCounts() {
+  try {
+    const raw = localStorage.getItem(GENERATION_COUNTS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function clearGenerationCounts() {
+  try {
+    localStorage.removeItem(GENERATION_COUNTS_KEY);
+  } catch (err) {
+    // ignora
+  }
+}
+
+function renderLyricsGenerationUI() {
+  if (lyricsGenerationCount <= 0) return;
+
   lyricsGenerationCounter.hidden = false;
-  lyricsGenerationCounter.textContent = `Versões geradas: ${lyricsGenerationCount} de ${MAX_LYRICS_GENERATIONS}`;
 
   if (lyricsGenerationCount >= MAX_LYRICS_GENERATIONS) {
     lyricsBtn.disabled = true;
     lyricsBtn.textContent = "Limite de gerações atingido";
     lyricsGenerationCounter.classList.add("limit-reached");
     lyricsGenerationCounter.textContent = `Limite de ${MAX_LYRICS_GENERATIONS} gerações de letra atingido.`;
+  } else {
+    lyricsGenerationCounter.textContent = `Versões geradas: ${lyricsGenerationCount} de ${MAX_LYRICS_GENERATIONS}`;
   }
 }
 
-function registerMusicGeneration() {
-  musicGenerationCount += 1;
+function renderMusicGenerationUI() {
+  if (musicGenerationCount <= 0) return;
+
   musicGenerationCounter.hidden = false;
-  musicGenerationCounter.textContent = `Versões geradas: ${musicGenerationCount} de ${MAX_MUSIC_GENERATIONS}`;
 
   if (musicGenerationCount >= MAX_MUSIC_GENERATIONS) {
     generateBtn.disabled = true;
@@ -183,7 +216,21 @@ function registerMusicGeneration() {
     musicGenerationCounter.classList.add("limit-reached");
     const previewWord = MAX_MUSIC_GENERATIONS === 1 ? "prévia" : "prévias";
     musicGenerationCounter.textContent = `Limite de ${MAX_MUSIC_GENERATIONS} ${previewWord} atingido. Finalize o pagamento para continuar.`;
+  } else {
+    musicGenerationCounter.textContent = `Versões geradas: ${musicGenerationCount} de ${MAX_MUSIC_GENERATIONS}`;
   }
+}
+
+function registerLyricsGeneration() {
+  lyricsGenerationCount += 1;
+  saveGenerationCounts();
+  renderLyricsGenerationUI();
+}
+
+function registerMusicGeneration() {
+  musicGenerationCount += 1;
+  saveGenerationCounts();
+  renderMusicGenerationUI();
 }
 
 lyricsForm.addEventListener("submit", async (e) => {
@@ -548,6 +595,7 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
 
   lyricsGenerationCount = 0;
   musicGenerationCount = 0;
+  clearGenerationCounts();
   lyricsBtn.disabled = false;
   lyricsBtn.textContent = "Gerar Letra →";
   generateBtn.disabled = false;
@@ -728,6 +776,7 @@ async function checkPixStatus(paymentId) {
 
 function unlockPaidSong() {
   clearPendingSong();
+  clearGenerationCounts();
   fullAudioPlayer.src = lastGeneration.audioUrl;
   fullPlayer.setCap(null);
   fullDownloadLink.href = lastGeneration.audioUrl;
@@ -785,4 +834,15 @@ async function sendSongEmail() {
   openModal();
   goToStep("payment-tab");
   setCheckoutStatus("Continuando de onde você parou — finalize o pagamento para liberar sua música.");
+})();
+
+// ---- Restaura limites de geração ao recarregar a página ----
+(function restoreGenerationCounts() {
+  const counts = loadGenerationCounts();
+  if (!counts) return;
+
+  lyricsGenerationCount = counts.lyrics || 0;
+  musicGenerationCount = counts.music || 0;
+  renderLyricsGenerationUI();
+  renderMusicGenerationUI();
 })();
