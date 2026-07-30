@@ -556,6 +556,27 @@ select:focus {
   display: none;
 }
 
+.test-link {
+  display: block;
+  margin: 14px auto 0;
+  background: none;
+  border: none;
+  color: #a98e88;
+  font-weight: 800;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  text-align: center;
+}
+
+.test-link:hover {
+  color: var(--coral);
+}
+
+.test-link[hidden] {
+  display: none;
+}
+
 /* ---- Resumo do pedido (Passo 4) ---- */
 .order-summary {
   background: white;

@@ -501,6 +501,12 @@ const pixResult = document.getElementById("pix-result");
 const pixQrImage = document.getElementById("pix-qr-image");
 const pixCopyPaste = document.getElementById("pix-copy-paste");
 const copyPixBtn = document.getElementById("copy-pix-btn");
+const simulatePaymentBtn = document.getElementById("simulate-payment-btn");
+
+simulatePaymentBtn.addEventListener("click", () => {
+  if (pollTimer) clearInterval(pollTimer);
+  unlockPaidSong();
+});
 const fullSongResult = document.getElementById("full-song-result");
 const fullAudioPlayer = document.getElementById("full-audio-player");
 const fullDownloadLink = document.getElementById("full-download-link");
@@ -572,6 +578,11 @@ pixForm.addEventListener("submit", async (e) => {
     pixResult.hidden = false;
     setCheckoutStatus("Escaneie o QR Code ou copie o código Pix. Aguardando pagamento...");
     trackPixel("InitiateCheckout", { value: 29.9, currency: "BRL" });
+
+    const isTestMode =
+      window.location.hostname === "localhost" ||
+      new URLSearchParams(window.location.search).has("test");
+    simulatePaymentBtn.hidden = !isTestMode;
 
     pollTimer = setInterval(() => checkPixStatus(data.paymentId), 4000);
   } catch (err) {
