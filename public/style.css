@@ -926,6 +926,11 @@ label {
   margin-top: 14px;
 }
 
+.label-optional {
+  font-weight: 500;
+  color: var(--coral);
+}
+
 input[type="text"],
 input[type="email"],
 input[type="tel"],

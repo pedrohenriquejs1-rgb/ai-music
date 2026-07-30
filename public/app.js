@@ -108,6 +108,7 @@ function setupChipGrid(gridId, hiddenInputId, selectId) {
 
 setupChipGrid("genre-chip-grid", "lyrics-genre", "lyrics-genre-select");
 setupChipGrid("mood-chip-grid", "lyrics-mood");
+setupChipGrid("recipient-chip-grid", "lyrics-recipient", "lyrics-recipient-select");
 
 // ---- Gerar Letra ----
 const lyricsBtn = document.getElementById("lyrics-btn");
@@ -161,12 +162,17 @@ lyricsForm.addEventListener("submit", async (e) => {
 
   if (lyricsGenerationCount >= MAX_GENERATIONS) return;
 
-  const theme = document.getElementById("lyrics-theme").value.trim();
+  const recipient = document.getElementById("lyrics-recipient").value.trim();
+  const recipientName = document.getElementById("lyrics-recipient-name").value.trim();
   const genre = document.getElementById("lyrics-genre").value.trim();
   const mood = document.getElementById("lyrics-mood").value.trim();
   const extra = document.getElementById("lyrics-extra").value.trim();
 
-  if (!theme || !genre || !mood) return;
+  if (!recipient || !genre || !mood) return;
+
+  const theme = recipientName
+    ? `Uma homenagem para ${recipient.toLowerCase()}, chamada(o) ${recipientName}`
+    : `Uma homenagem para ${recipient.toLowerCase()}`;
 
   lyricsBtn.disabled = true;
   lyricsResult.hidden = true;
@@ -515,7 +521,10 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
   musicGenerationCounter.hidden = true;
   musicGenerationCounter.classList.remove("limit-reached");
 
-  document.getElementById("lyrics-theme").value = "";
+  document.getElementById("lyrics-recipient").value = "";
+  document.getElementById("lyrics-recipient-select").value = "";
+  document.getElementById("lyrics-recipient-name").value = "";
+  document.querySelectorAll("#recipient-chip-grid .chip").forEach((c) => c.classList.remove("selected"));
   document.getElementById("lyrics-extra").value = "";
   promptInput.value = "";
   lyricsInput.value = "";
