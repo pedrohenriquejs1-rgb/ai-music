@@ -531,10 +531,6 @@ select:focus {
   background: #fde3df;
 }
 
-.option-card[data-mode="own"] .option-icon {
-  background: #d9f2ec;
-}
-
 .option-text {
   display: flex;
   flex-direction: column;
@@ -948,19 +944,10 @@ select:focus {
   flex-shrink: 0;
 }
 
-form,
-#own-lyrics-block {
+form {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-#own-lyrics-block[hidden] {
-  display: none;
-}
-
-#own-lyrics-input {
-  min-height: 180px;
 }
 
 label {

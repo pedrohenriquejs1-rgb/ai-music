@@ -43,49 +43,17 @@ function goToStep(tabId) {
 }
 
 // ---- Etapa 1: História ----
-const optionCards = document.querySelectorAll(".option-card");
 const lyricsForm = document.getElementById("lyrics-form");
-const ownLyricsBlock = document.getElementById("own-lyrics-block");
 const lyricsStepTitle = document.getElementById("lyrics-step-title");
 const lyricsStepSubtitle = document.getElementById("lyrics-step-subtitle");
 
-let storyMode = "ai";
-
-optionCards.forEach((card) => {
-  card.addEventListener("click", () => {
-    optionCards.forEach((c) => c.classList.remove("selected"));
-    card.classList.add("selected");
-    storyMode = card.dataset.mode;
-  });
-});
-
 document.getElementById("story-continue-btn").addEventListener("click", () => {
-  if (storyMode === "own") {
-    lyricsForm.hidden = true;
-    ownLyricsBlock.hidden = false;
-    lyricsStepTitle.textContent = "Cole a letra que você já tem";
-    lyricsStepSubtitle.textContent = "Vamos transformar essa letra em uma música completa.";
-  } else {
-    lyricsForm.hidden = false;
-    ownLyricsBlock.hidden = true;
-    lyricsStepTitle.textContent = "Vamos escrever a letra";
-    lyricsStepSubtitle.textContent = "Preencha as informações abaixo e a IA escreve a letra pra você.";
-    document.getElementById("lyrics-card-recipient").hidden = false;
-    document.getElementById("lyrics-card-genre").hidden = true;
-  }
+  lyricsForm.hidden = false;
+  lyricsStepTitle.textContent = "Vamos escrever a letra";
+  lyricsStepSubtitle.textContent = "Preencha as informações abaixo e a IA escreve a letra pra você.";
+  document.getElementById("lyrics-card-recipient").hidden = false;
+  document.getElementById("lyrics-card-genre").hidden = true;
   goToStep("lyrics-tab");
-});
-
-document.getElementById("own-lyrics-continue-btn").addEventListener("click", () => {
-  const ownLyrics = document.getElementById("own-lyrics-input").value.trim();
-  if (!ownLyrics) return;
-
-  document.getElementById("lyrics").value = ownLyrics;
-  document.getElementById("lyrics").readOnly = true;
-  document.getElementById("lyrics-lock-hint").hidden = false;
-  document.getElementById("prompt").readOnly = false;
-  document.getElementById("prompt-lock-hint").hidden = true;
-  goToStep("music-tab");
 });
 
 // ---- Chips: gênero e humor ----
