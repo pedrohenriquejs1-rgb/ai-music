@@ -265,14 +265,19 @@
             </div>
 
             <div id="result" class="result" hidden>
-              <h3>Sua prévia</h3>
+              <span class="player-tag player-tag-preview">🎧 PRÉVIA DE 40 SEGUNDOS</span>
+              <h3>Sua prévia ficou pronta!</h3>
               <audio id="audio-player" preload="metadata"></audio>
-              <div class="player">
+              <div class="player player-preview">
+                <div class="player-avatar" id="player-avatar">🎵</div>
                 <button type="button" id="player-toggle" class="player-toggle" aria-label="Reproduzir">▶</button>
-                <div class="player-track" id="player-track">
-                  <div class="player-fill" id="player-fill"></div>
+                <div class="player-body">
+                  <div class="player-track" id="player-track">
+                    <div class="player-fill" id="player-fill"></div>
+                    <div class="player-thumb" id="player-thumb"></div>
+                  </div>
+                  <span class="player-time" id="player-time">0:00 / 0:40</span>
                 </div>
-                <span class="player-time" id="player-time">0:00 / 0:40</span>
               </div>
               <div class="result-actions">
                 <button type="button" id="continue-payment-btn" class="cta-btn-green full">Continuar para pagamento →</button>
@@ -349,16 +354,21 @@
             <div id="checkout-status" class="status" hidden></div>
 
             <div id="full-song-result" class="result" hidden>
-              <h3>Sua música completa</h3>
+              <span class="player-tag player-tag-full">✅ MÚSICA COMPLETA LIBERADA</span>
+              <h3>Sua música está pronta!</h3>
               <audio id="full-audio-player" preload="metadata"></audio>
-              <div class="player">
-                <button type="button" id="full-player-toggle" class="player-toggle" aria-label="Reproduzir">▶</button>
-                <div class="player-track" id="full-player-track">
-                  <div class="player-fill" id="full-player-fill"></div>
+              <div class="player player-full">
+                <div class="player-avatar player-avatar-full" id="full-player-avatar">🎶</div>
+                <button type="button" id="full-player-toggle" class="player-toggle player-toggle-full" aria-label="Reproduzir">▶</button>
+                <div class="player-body">
+                  <div class="player-track player-track-full" id="full-player-track">
+                    <div class="player-fill player-fill-full" id="full-player-fill"></div>
+                    <div class="player-thumb player-thumb-full" id="full-player-thumb"></div>
+                  </div>
+                  <span class="player-time" id="full-player-time">0:00 / 0:00</span>
                 </div>
-                <span class="player-time" id="full-player-time">0:00 / 0:00</span>
               </div>
-              <a id="full-download-link" class="secondary-btn" download>Baixar MP3</a>
+              <a id="full-download-link" class="secondary-btn" download>⬇️ Baixar MP3</a>
               <button type="button" id="create-second-song-btn" class="cta-btn full" hidden>🔥 Criar minha 2ª música →</button>
             </div>
           </section>

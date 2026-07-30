@@ -329,6 +329,8 @@ const PREVIEW_SECONDS = 40;
 // ---- Player customizado (usado na prévia e na música completa) ----
 function setupCustomPlayer(audioEl, toggleBtn, trackEl, fillEl, timeEl) {
   let capSeconds = null;
+  const playerEl = toggleBtn.closest(".player");
+  const thumbEl = trackEl.querySelector(".player-thumb");
 
   function formatTime(seconds) {
     const total = Math.max(0, Math.floor(seconds));
@@ -346,6 +348,7 @@ function setupCustomPlayer(audioEl, toggleBtn, trackEl, fillEl, timeEl) {
     const current = Math.min(audioEl.currentTime, duration || audioEl.currentTime);
     const pct = duration ? (current / duration) * 100 : 0;
     fillEl.style.width = `${pct}%`;
+    if (thumbEl) thumbEl.style.left = `${pct}%`;
     timeEl.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
   }
 
@@ -354,9 +357,18 @@ function setupCustomPlayer(audioEl, toggleBtn, trackEl, fillEl, timeEl) {
     else audioEl.pause();
   });
 
-  audioEl.addEventListener("play", () => (toggleBtn.textContent = "⏸"));
-  audioEl.addEventListener("pause", () => (toggleBtn.textContent = "▶"));
-  audioEl.addEventListener("ended", () => (toggleBtn.textContent = "▶"));
+  audioEl.addEventListener("play", () => {
+    toggleBtn.textContent = "⏸";
+    if (playerEl) playerEl.classList.add("is-playing");
+  });
+  audioEl.addEventListener("pause", () => {
+    toggleBtn.textContent = "▶";
+    if (playerEl) playerEl.classList.remove("is-playing");
+  });
+  audioEl.addEventListener("ended", () => {
+    toggleBtn.textContent = "▶";
+    if (playerEl) playerEl.classList.remove("is-playing");
+  });
 
   audioEl.addEventListener("timeupdate", () => {
     if (capSeconds && audioEl.currentTime >= capSeconds) {
