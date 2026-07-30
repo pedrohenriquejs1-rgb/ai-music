@@ -926,6 +926,24 @@ label {
   margin-top: 14px;
 }
 
+.form-card {
+  background: white;
+  border: 1.5px solid var(--input-border);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#lyrics-form {
+  gap: 16px;
+}
+
+.form-card > label:first-child {
+  margin-top: 0;
+}
+
 .label-optional {
   font-weight: 500;
   color: var(--coral);

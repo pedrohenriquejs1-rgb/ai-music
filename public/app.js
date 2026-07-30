@@ -170,6 +170,11 @@ lyricsForm.addEventListener("submit", async (e) => {
 
   if (!recipient || !genre) return;
 
+  if (extra.length < 20) {
+    setLyricsStatus("Conte um pouco mais sobre a história (mínimo 20 caracteres).", true);
+    return;
+  }
+
   const theme = recipientName
     ? `Uma homenagem para ${recipient.toLowerCase()}, chamada(o) ${recipientName}`
     : `Uma homenagem para ${recipient.toLowerCase()}`;

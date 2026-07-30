@@ -132,78 +132,83 @@
             <button type="button" class="back-link" data-back="story-tab">← Voltar</button>
 
             <form id="lyrics-form">
-              <label>Para quem é essa música?</label>
-              <p class="field-hint">Toque em quem você quer emocionar com a sua música.</p>
-              <div class="chip-grid" id="recipient-chip-grid">
-                <button type="button" class="chip" data-value="Esposa">💍 Esposa</button>
-                <button type="button" class="chip" data-value="Esposo">💍 Esposo</button>
-                <button type="button" class="chip" data-value="Namorada">❤️ Namorada</button>
-                <button type="button" class="chip" data-value="Namorado">❤️ Namorado</button>
-                <button type="button" class="chip" data-value="Mãe">💐 Mãe</button>
-                <button type="button" class="chip" data-value="Pai">☀️ Pai</button>
-                <button type="button" class="chip" data-value="Filho(a)">🧸 Filho(a)</button>
-                <button type="button" class="chip" data-value="Amigo(a)">🤝 Amigo(a)</button>
+              <div class="form-card">
+                <label>Para quem é essa música?</label>
+                <p class="field-hint">Toque em quem você quer emocionar com a sua música.</p>
+                <div class="chip-grid" id="recipient-chip-grid">
+                  <button type="button" class="chip" data-value="Esposa">💍 Esposa</button>
+                  <button type="button" class="chip" data-value="Esposo">💍 Esposo</button>
+                  <button type="button" class="chip" data-value="Namorada">❤️ Namorada</button>
+                  <button type="button" class="chip" data-value="Namorado">❤️ Namorado</button>
+                  <button type="button" class="chip" data-value="Mãe">💐 Mãe</button>
+                  <button type="button" class="chip" data-value="Pai">☀️ Pai</button>
+                  <button type="button" class="chip" data-value="Filho(a)">🧸 Filho(a)</button>
+                  <button type="button" class="chip" data-value="Amigo(a)">🤝 Amigo(a)</button>
+                </div>
+                <p class="field-hint">Ou escolha na lista</p>
+                <select id="lyrics-recipient-select">
+                  <option value="">Selecione</option>
+                  <option value="Esposa">Esposa</option>
+                  <option value="Esposo">Esposo</option>
+                  <option value="Namorada">Namorada</option>
+                  <option value="Namorado">Namorado</option>
+                  <option value="Mãe">Mãe</option>
+                  <option value="Pai">Pai</option>
+                  <option value="Filho(a)">Filho(a)</option>
+                  <option value="Amigo(a)">Amigo(a)</option>
+                  <option value="Irmão(ã)">Irmão(ã)</option>
+                  <option value="Avó">Avó</option>
+                  <option value="Avô">Avô</option>
+                  <option value="Colega de trabalho">Colega de trabalho</option>
+                  <option value="Mim mesmo(a)">Mim mesmo(a)</option>
+                  <option value="Outro">Outro</option>
+                </select>
+                <input type="hidden" id="lyrics-recipient" required />
+
+                <label for="lyrics-recipient-name">Nome da pessoa homenageada <span class="label-optional">(opcional)</span></label>
+                <input
+                  type="text"
+                  id="lyrics-recipient-name"
+                  placeholder="Ex: Mariana"
+                />
               </div>
-              <p class="field-hint">Ou escolha na lista</p>
-              <select id="lyrics-recipient-select">
-                <option value="">Selecione</option>
-                <option value="Esposa">Esposa</option>
-                <option value="Esposo">Esposo</option>
-                <option value="Namorada">Namorada</option>
-                <option value="Namorado">Namorado</option>
-                <option value="Mãe">Mãe</option>
-                <option value="Pai">Pai</option>
-                <option value="Filho(a)">Filho(a)</option>
-                <option value="Amigo(a)">Amigo(a)</option>
-                <option value="Irmão(ã)">Irmão(ã)</option>
-                <option value="Avó">Avó</option>
-                <option value="Avô">Avô</option>
-                <option value="Colega de trabalho">Colega de trabalho</option>
-                <option value="Mim mesmo(a)">Mim mesmo(a)</option>
-                <option value="Outro">Outro</option>
-              </select>
-              <input type="hidden" id="lyrics-recipient" required />
 
-              <label for="lyrics-recipient-name">Nome da pessoa homenageada <span class="label-optional">(opcional)</span></label>
-              <input
-                type="text"
-                id="lyrics-recipient-name"
-                placeholder="Ex: Mariana"
-              />
+              <div class="form-card">
+                <label>Gênero musical</label>
+                <div class="chip-grid" id="genre-chip-grid">
+                  <button type="button" class="chip" data-value="Sertanejo">Sertanejo</button>
+                  <button type="button" class="chip" data-value="Gospel">Gospel</button>
+                  <button type="button" class="chip" data-value="MPB">MPB</button>
+                  <button type="button" class="chip" data-value="Pop">Pop</button>
+                  <button type="button" class="chip" data-value="Pagode">Pagode</button>
+                  <button type="button" class="chip" data-value="Forró">Forró</button>
+                </div>
+                <p class="field-hint">Ou escolha na lista</p>
+                <select id="lyrics-genre-select">
+                  <option value="">Selecione</option>
+                  <option value="Sertanejo">Sertanejo</option>
+                  <option value="Pagode">Pagode</option>
+                  <option value="MPB">MPB</option>
+                  <option value="Pop">Pop</option>
+                  <option value="Gospel">Gospel</option>
+                  <option value="Gaúcha">Gaúcha</option>
+                  <option value="Funk Brasileiro">Funk Brasileiro</option>
+                  <option value="Forró">Forró</option>
+                  <option value="Piseiro">Piseiro</option>
+                  <option value="Arrocha">Arrocha</option>
+                  <option value="Acústico">Acústico</option>
+                  <option value="Rock">Rock</option>
+                  <option value="Festa Infantil">Festa Infantil</option>
+                </select>
+                <input type="hidden" id="lyrics-genre" required />
 
-              <label>Gênero musical</label>
-              <div class="chip-grid" id="genre-chip-grid">
-                <button type="button" class="chip" data-value="Sertanejo">Sertanejo</button>
-                <button type="button" class="chip" data-value="Gospel">Gospel</button>
-                <button type="button" class="chip" data-value="MPB">MPB</button>
-                <button type="button" class="chip" data-value="Pop">Pop</button>
-                <button type="button" class="chip" data-value="Pagode">Pagode</button>
-                <button type="button" class="chip" data-value="Forró">Forró</button>
+                <label for="lyrics-extra">Conte a sua história</label>
+                <textarea
+                  id="lyrics-extra"
+                  placeholder="Conte a história, momentos especiais e características da pessoa para deixar a letra única..."
+                ></textarea>
+                <p class="field-hint" id="lyrics-extra-hint">Mínimo de 20 caracteres.</p>
               </div>
-              <p class="field-hint">Ou escolha na lista</p>
-              <select id="lyrics-genre-select">
-                <option value="">Selecione</option>
-                <option value="Sertanejo">Sertanejo</option>
-                <option value="Pagode">Pagode</option>
-                <option value="MPB">MPB</option>
-                <option value="Pop">Pop</option>
-                <option value="Gospel">Gospel</option>
-                <option value="Gaúcha">Gaúcha</option>
-                <option value="Funk Brasileiro">Funk Brasileiro</option>
-                <option value="Forró">Forró</option>
-                <option value="Piseiro">Piseiro</option>
-                <option value="Arrocha">Arrocha</option>
-                <option value="Acústico">Acústico</option>
-                <option value="Rock">Rock</option>
-                <option value="Festa Infantil">Festa Infantil</option>
-              </select>
-              <input type="hidden" id="lyrics-genre" required />
-
-              <label for="lyrics-extra">Detalhes adicionais (opcional)</label>
-              <textarea
-                id="lyrics-extra"
-                placeholder="Ex: mencionar praia e verão, ter um refrão fácil de cantar junto..."
-              ></textarea>
 
               <button type="submit" id="lyrics-btn" class="cta-btn full">Gerar Letra →</button>
             </form>
