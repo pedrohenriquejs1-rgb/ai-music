@@ -81,6 +81,8 @@ document.getElementById("own-lyrics-continue-btn").addEventListener("click", () 
   if (!ownLyrics) return;
 
   document.getElementById("lyrics").value = ownLyrics;
+  document.getElementById("lyrics").readOnly = true;
+  document.getElementById("lyrics-lock-hint").hidden = false;
   document.getElementById("prompt").readOnly = false;
   document.getElementById("prompt-lock-hint").hidden = true;
   goToStep("music-tab");
@@ -246,6 +248,8 @@ useLyricsBtn.addEventListener("click", () => {
   document.getElementById("prompt").readOnly = true;
   document.getElementById("prompt-lock-hint").hidden = false;
   document.getElementById("lyrics").value = lyricsOutput.value;
+  document.getElementById("lyrics").readOnly = true;
+  document.getElementById("lyrics-lock-hint").hidden = false;
 
   goToStep("music-tab");
 });
@@ -564,6 +568,8 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
   promptInput.readOnly = false;
   document.getElementById("prompt-lock-hint").hidden = true;
   lyricsInput.value = "";
+  lyricsInput.readOnly = false;
+  document.getElementById("lyrics-lock-hint").hidden = true;
   lyricsResult.hidden = true;
   resultEl.hidden = true;
 
