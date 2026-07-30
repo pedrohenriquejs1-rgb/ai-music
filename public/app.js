@@ -109,7 +109,6 @@ function setupChipGrid(gridId, hiddenInputId, selectId) {
 }
 
 setupChipGrid("genre-chip-grid", "lyrics-genre", "lyrics-genre-select");
-setupChipGrid("mood-chip-grid", "lyrics-mood");
 setupChipGrid("recipient-chip-grid", "lyrics-recipient", "lyrics-recipient-select");
 
 // ---- Gerar Letra ----
@@ -167,10 +166,9 @@ lyricsForm.addEventListener("submit", async (e) => {
   const recipient = document.getElementById("lyrics-recipient").value.trim();
   const recipientName = document.getElementById("lyrics-recipient-name").value.trim();
   const genre = document.getElementById("lyrics-genre").value.trim();
-  const mood = document.getElementById("lyrics-mood").value.trim();
   const extra = document.getElementById("lyrics-extra").value.trim();
 
-  if (!recipient || !genre || !mood) return;
+  if (!recipient || !genre) return;
 
   const theme = recipientName
     ? `Uma homenagem para ${recipient.toLowerCase()}, chamada(o) ${recipientName}`
@@ -184,7 +182,7 @@ lyricsForm.addEventListener("submit", async (e) => {
     const res = await fetch("/api/lyrics", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ theme, genre, mood, extra }),
+      body: JSON.stringify({ theme, genre, extra }),
     });
 
     const data = await res.json();
@@ -212,9 +210,8 @@ copyLyricsBtn.addEventListener("click", async () => {
 
 useLyricsBtn.addEventListener("click", () => {
   const genre = document.getElementById("lyrics-genre").value.trim();
-  const mood = document.getElementById("lyrics-mood").value.trim();
 
-  document.getElementById("prompt").value = `${genre}, clima ${mood}`;
+  document.getElementById("prompt").value = genre;
   document.getElementById("prompt").readOnly = true;
   document.getElementById("prompt-lock-hint").hidden = false;
   document.getElementById("lyrics").value = lyricsOutput.value;

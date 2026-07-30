@@ -265,16 +265,15 @@ app.post("/api/send-song-email", async (req, res) => {
 });
 
 app.post("/api/lyrics", async (req, res) => {
-  const { theme, genre, mood, extra } = req.body;
+  const { theme, genre, extra } = req.body;
 
-  if (!theme || !genre || !mood) {
-    return res.status(400).json({ error: "Preencha tema, gênero e humor para gerar a letra." });
+  if (!theme || !genre) {
+    return res.status(400).json({ error: "Preencha o destinatário e o gênero para gerar a letra." });
   }
 
   const userPrompt = [
     `Tema/assunto: ${theme}`,
     `Gênero musical: ${genre}`,
-    `Humor/emoção: ${mood}`,
     extra ? `Detalhes adicionais: ${extra}` : null,
   ]
     .filter(Boolean)
