@@ -699,6 +699,10 @@ select:focus {
   cursor: pointer;
 }
 
+.upsell-card[hidden] {
+  display: none;
+}
+
 .upsell-ribbon {
   position: absolute;
   top: -11px;

@@ -239,6 +239,34 @@ function setStatus(message, isError = false) {
 
 let lastGeneration = null;
 
+// ---- Continuar de onde parou (prévia não paga) ----
+const PENDING_SONG_KEY = "pendingSong";
+
+function savePendingSong() {
+  try {
+    localStorage.setItem(PENDING_SONG_KEY, JSON.stringify(lastGeneration));
+  } catch (err) {
+    // localStorage indisponível (modo privado etc.) — segue sem persistir
+  }
+}
+
+function clearPendingSong() {
+  try {
+    localStorage.removeItem(PENDING_SONG_KEY);
+  } catch (err) {
+    // ignora
+  }
+}
+
+function loadPendingSong() {
+  try {
+    const raw = localStorage.getItem(PENDING_SONG_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return null;
+  }
+}
+
 // ---- Card "compondo" (cronômetro, barra de progresso, mensagens) ----
 const generatingCard = document.getElementById("generating-card");
 const countdownValue = document.getElementById("countdown-value");
@@ -392,6 +420,7 @@ function pollMusicGeneration(taskId, prompt, lyrics) {
         resultEl.hidden = false;
         setStatus("");
         lastGeneration = { prompt, lyrics, audioUrl: data.audioUrl };
+        savePendingSong();
         registerMusicGeneration();
         finishMusicGeneration();
       }
@@ -618,6 +647,7 @@ async function checkPixStatus(paymentId) {
 }
 
 function unlockPaidSong() {
+  clearPendingSong();
   fullAudioPlayer.src = lastGeneration.audioUrl;
   fullPlayer.setCap(null);
   fullDownloadLink.href = lastGeneration.audioUrl;
@@ -653,3 +683,20 @@ async function sendSongEmail() {
     // não bloqueia a experiência se o e-mail falhar
   }
 }
+
+// ---- Restaura prévia não paga ao recarregar a página ----
+(function restorePendingSong() {
+  const pending = loadPendingSong();
+  if (!pending || !pending.audioUrl) return;
+
+  lastGeneration = pending;
+  promptInput.value = pending.prompt || "";
+  lyricsInput.value = pending.lyrics || "";
+  audioPlayer.src = pending.audioUrl;
+  previewPlayer.setCap(PREVIEW_SECONDS);
+  resultEl.hidden = false;
+
+  openModal();
+  goToStep("payment-tab");
+  setCheckoutStatus("Continuando de onde você parou — finalize o pagamento para liberar sua música.");
+})();
