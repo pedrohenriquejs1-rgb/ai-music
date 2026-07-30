@@ -291,10 +291,22 @@
                 <li>✓ Liberação imediata após o pagamento</li>
                 <li>✓ Pagamento único, sem assinatura</li>
               </ul>
-              <div class="order-divider"></div>
+            </div>
+
+            <label class="upsell-card" for="bundle-checkbox">
+              <span class="upsell-ribbon">MAIS PEDIDO</span>
+              <input type="checkbox" id="bundle-checkbox" />
+              <span class="upsell-content">
+                <span class="upsell-badge">🔥 PROMOÇÃO</span>
+                <span class="upsell-title">Leve 2 músicas por R$ 50,00</span>
+                <span class="upsell-desc">Crie mais uma música completa e economize R$ 9,80.</span>
+              </span>
+            </label>
+
+            <div class="order-summary">
               <div class="order-row order-total">
                 <span>Total</span>
-                <span>R$ 29,90</span>
+                <span id="order-total-value">R$ 29,90</span>
               </div>
             </div>
 
@@ -302,7 +314,7 @@
               <label for="pix-email">Seu e-mail</label>
               <input type="email" id="pix-email" placeholder="seunome@email.com" required />
 
-              <button type="submit" id="checkout-btn" class="cta-btn-green full">Gerar Pix →</button>
+              <button type="submit" id="checkout-btn" class="cta-btn-green full">Gerar Pix de <span id="checkout-btn-value">R$ 29,90</span> →</button>
             </form>
 
             <div id="checkout-status" class="status" hidden></div>
@@ -327,6 +339,7 @@
                 <span class="player-time" id="full-player-time">0:00 / 0:00</span>
               </div>
               <a id="full-download-link" class="secondary-btn" download>Baixar MP3</a>
+              <button type="button" id="create-second-song-btn" class="cta-btn full" hidden>🔥 Criar minha 2ª música →</button>
             </div>
           </section>
         </div>

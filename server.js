@@ -23,7 +23,15 @@ if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
   );
 }
 
+if (!process.env.RESEND_API_KEY) {
+  console.warn(
+    "Aviso: RESEND_API_KEY nao definido. O e-mail de entrega da musica nao vai funcionar sem ele."
+  );
+}
+
 const FULL_SONG_PRICE = 29.9;
+const BUNDLE_PRICE = 50.0;
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Minha Música IA <onboarding@resend.dev>";
 const PREVIEW_SECONDS = 40;
 const SUNO_CALLBACK_URL = process.env.SUNO_CALLBACK_URL || "https://example.com/";
 
@@ -119,7 +127,7 @@ app.get("/api/generate/status/:taskId", async (req, res) => {
 });
 
 app.post("/api/pix-payment", async (req, res) => {
-  const { email } = req.body;
+  const { email, bundle } = req.body;
 
   if (!email || typeof email !== "string" || !email.includes("@")) {
     return res.status(400).json({ error: "Informe um e-mail válido para gerar o Pix." });
@@ -128,6 +136,11 @@ app.post("/api/pix-payment", async (req, res) => {
   if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
     return res.status(500).json({ error: "Pagamento não configurado. Defina MERCADOPAGO_ACCESS_TOKEN no .env." });
   }
+
+  const amount = bundle ? BUNDLE_PRICE : FULL_SONG_PRICE;
+  const description = bundle
+    ? "Música personalizada - promoção 2 músicas"
+    : "Música personalizada - versão completa";
 
   try {
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
@@ -138,8 +151,8 @@ app.post("/api/pix-payment", async (req, res) => {
         "X-Idempotency-Key": `pix-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       },
       body: JSON.stringify({
-        transaction_amount: FULL_SONG_PRICE,
-        description: "Música personalizada - versão completa",
+        transaction_amount: amount,
+        description,
         payment_method_id: "pix",
         payer: { email },
       }),
@@ -186,6 +199,64 @@ app.get("/api/pix-payment/:id/status", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Falha ao checar o pagamento." });
+  }
+});
+
+app.post("/api/send-song-email", async (req, res) => {
+  const { email, audioUrl } = req.body;
+
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    return res.status(400).json({ error: "E-mail inválido." });
+  }
+
+  if (!audioUrl || typeof audioUrl !== "string") {
+    return res.status(400).json({ error: "Link da música ausente." });
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    return res.status(500).json({ error: "Envio de e-mail não configurado." });
+  }
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; background: #f3e9e6; border-radius: 16px;">
+      <p style="color: #be3856; font-weight: bold; letter-spacing: 0.05em; font-size: 12px; margin: 0 0 8px;">SUA MÚSICA ESTÁ PRONTA</p>
+      <h1 style="color: #272326; font-size: 22px; margin: 0 0 16px;">Obrigado pela sua compra! 🎵</h1>
+      <p style="color: #544b4e; font-size: 15px; line-height: 1.5;">
+        Sua música personalizada completa já está pronta. Clique no botão abaixo para ouvir ou baixar quando quiser — guarde este e-mail, ele é a sua cópia de segurança.
+      </p>
+      <a href="${audioUrl}" style="display: inline-block; margin-top: 16px; padding: 14px 28px; background: linear-gradient(90deg, #be3856, #ef635c); color: white; text-decoration: none; border-radius: 12px; font-weight: bold;">
+        Baixar minha música
+      </a>
+      <p style="color: #a98e88; font-size: 12px; margin-top: 24px;">Minha Música IA</p>
+    </div>
+  `;
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: RESEND_FROM_EMAIL,
+        to: [email],
+        subject: "Sua música está pronta! 🎵",
+        html,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      return res.status(500).json({ error: "Falha ao enviar o e-mail." });
+    }
+
+    res.json({ sent: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Falha ao enviar o e-mail." });
   }
 });
 

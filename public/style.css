@@ -597,6 +597,72 @@ select:focus {
   font-weight: 900;
 }
 
+/* ---- Upsell (bundle 2 músicas) ---- */
+.upsell-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: white;
+  border: 2px solid var(--green);
+  border-radius: 16px;
+  padding: 20px 18px 16px;
+  margin-bottom: 20px;
+  margin-top: 14px;
+  cursor: pointer;
+}
+
+.upsell-ribbon {
+  position: absolute;
+  top: -11px;
+  left: 16px;
+  background: var(--green);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(25, 180, 116, 0.4);
+}
+
+.upsell-card input[type="checkbox"] {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green);
+  flex-shrink: 0;
+}
+
+.upsell-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.upsell-badge {
+  display: inline-block;
+  background: #ddfbf4;
+  color: var(--green-soft-text);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.upsell-title {
+  font-weight: 800;
+  color: var(--card-text);
+  font-size: 0.95rem;
+}
+
+.upsell-desc {
+  font-size: 0.82rem;
+  color: var(--card-muted);
+}
+
 form,
 #own-lyrics-block {
   display: flex;

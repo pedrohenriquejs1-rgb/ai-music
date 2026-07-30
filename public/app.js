@@ -449,8 +449,46 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
+let secondSongPrepaid = false;
+
 document.getElementById("continue-payment-btn").addEventListener("click", () => {
   goToStep("payment-tab");
+
+  if (secondSongPrepaid) {
+    secondSongPrepaid = false;
+    document.getElementById("pix-form").hidden = true;
+    unlockPaidSong();
+  }
+});
+
+document.getElementById("create-second-song-btn").addEventListener("click", () => {
+  secondSongPrepaid = true;
+
+  lyricsGenerationCount = 0;
+  musicGenerationCount = 0;
+  lyricsBtn.disabled = false;
+  lyricsBtn.textContent = "Gerar Letra →";
+  generateBtn.disabled = false;
+  generateBtn.textContent = "Gerar Prévia →";
+  lyricsGenerationCounter.hidden = true;
+  lyricsGenerationCounter.classList.remove("limit-reached");
+  musicGenerationCounter.hidden = true;
+  musicGenerationCounter.classList.remove("limit-reached");
+
+  document.getElementById("lyrics-theme").value = "";
+  document.getElementById("lyrics-extra").value = "";
+  promptInput.value = "";
+  lyricsInput.value = "";
+  lyricsResult.hidden = true;
+  resultEl.hidden = true;
+
+  document.getElementById("pix-form").hidden = false;
+  document.getElementById("bundle-checkbox").checked = false;
+  updateOrderTotal();
+  fullSongResult.hidden = true;
+  document.getElementById("create-second-song-btn").hidden = true;
+
+  goToStep("story-tab");
 });
 
 // ---- Etapa 4: Pagamento (Pix inline) ----
@@ -465,6 +503,20 @@ const copyPixBtn = document.getElementById("copy-pix-btn");
 const fullSongResult = document.getElementById("full-song-result");
 const fullAudioPlayer = document.getElementById("full-audio-player");
 const fullDownloadLink = document.getElementById("full-download-link");
+
+// ---- Upsell: 2 músicas por R$ 50,00 ----
+const bundleCheckbox = document.getElementById("bundle-checkbox");
+const orderTotalValue = document.getElementById("order-total-value");
+const checkoutBtnValue = document.getElementById("checkout-btn-value");
+let lastPaidAsBundle = false;
+
+function updateOrderTotal() {
+  const price = bundleCheckbox.checked ? "R$ 50,00" : "R$ 29,90";
+  orderTotalValue.textContent = price;
+  checkoutBtnValue.textContent = price;
+}
+
+bundleCheckbox.addEventListener("change", updateOrderTotal);
 
 const fullPlayer = setupCustomPlayer(
   fullAudioPlayer,
@@ -493,6 +545,8 @@ pixForm.addEventListener("submit", async (e) => {
   const email = pixEmailInput.value.trim();
   if (!email) return;
 
+  lastPaidAsBundle = bundleCheckbox.checked;
+
   checkoutBtn.disabled = true;
   pixResult.hidden = true;
   fullSongResult.hidden = true;
@@ -503,7 +557,7 @@ pixForm.addEventListener("submit", async (e) => {
     const res = await fetch("/api/pix-payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, bundle: lastPaidAsBundle }),
     });
 
     const data = await res.json();
@@ -554,6 +608,29 @@ function unlockPaidSong() {
   fullDownloadLink.href = lastGeneration.audioUrl;
   fullSongResult.hidden = false;
   pixResult.hidden = true;
-  setCheckoutStatus("Pagamento confirmado! Sua música completa está liberada abaixo.");
+
+  const createSecondSongBtn = document.getElementById("create-second-song-btn");
+  if (lastPaidAsBundle) {
+    createSecondSongBtn.hidden = false;
+    setCheckoutStatus("Pagamento confirmado! Sua música está liberada abaixo — e você ainda tem +1 música garantida na promoção.");
+  } else {
+    createSecondSongBtn.hidden = true;
+    setCheckoutStatus("Pagamento confirmado! Sua música completa está liberada abaixo e também foi enviada para o seu e-mail.");
+  }
+  lastPaidAsBundle = false;
+
   trackPixel("Purchase", { value: 29.9, currency: "BRL" });
+  sendSongEmail();
+}
+
+async function sendSongEmail() {
+  try {
+    await fetch("/api/send-song-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: pixEmailInput.value.trim(), audioUrl: lastGeneration.audioUrl }),
+    });
+  } catch (err) {
+    // não bloqueia a experiência se o e-mail falhar
+  }
 }
