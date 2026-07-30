@@ -127,10 +127,14 @@ app.get("/api/generate/status/:taskId", async (req, res) => {
 });
 
 app.post("/api/pix-payment", async (req, res) => {
-  const { email, bundle } = req.body;
+  const { email, phone, bundle } = req.body;
 
   if (!email || typeof email !== "string" || !email.includes("@")) {
     return res.status(400).json({ error: "Informe um e-mail válido para gerar o Pix." });
+  }
+
+  if (phone && typeof phone === "string" && phone.trim()) {
+    console.log(`Pedido com WhatsApp informado: ${phone.trim()} (${email})`);
   }
 
   if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {

@@ -331,6 +331,11 @@
               <form id="pix-form">
                 <label for="pix-email">Seu e-mail</label>
                 <input type="email" id="pix-email" placeholder="seunome@email.com" required />
+                <p class="field-hint">📩 Enviaremos sua música completa também para este e-mail.</p>
+
+                <label for="pix-phone">WhatsApp (opcional)</label>
+                <input type="tel" id="pix-phone" placeholder="(00) 00000-0000" />
+                <p class="field-hint">Só usamos para falar com você sobre o seu pedido, se precisar.</p>
 
                 <button type="submit" id="checkout-btn" class="cta-btn-green full">Gerar Pix de <span id="checkout-btn-value">R$ 29,90</span> →</button>
               </form>
@@ -368,7 +373,13 @@
                   <span class="player-time" id="full-player-time">0:00 / 0:00</span>
                 </div>
               </div>
-              <a id="full-download-link" class="secondary-btn" download>⬇️ Baixar MP3</a>
+              <a id="full-download-link" class="cta-btn-green full" download>⬇️ Baixar MP3 agora</a>
+
+              <div class="delivery-note">
+                <p>📩 Também enviamos uma cópia para <strong id="delivery-email">seu e-mail</strong> — se não achar, olhe a caixa de spam.</p>
+                <p id="delivery-whatsapp-note" hidden>💬 Anotamos seu WhatsApp e podemos te ajudar por lá se precisar.</p>
+              </div>
+
               <button type="button" id="create-second-song-btn" class="cta-btn full" hidden>🔥 Criar minha 2ª música →</button>
             </div>
           </section>

@@ -246,6 +246,9 @@ body {
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(25, 180, 116, 0.35);
   transition: transform 0.15s, box-shadow 0.15s;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .cta-btn-green:hover:not(:disabled) {
@@ -925,6 +928,7 @@ label {
 
 input[type="text"],
 input[type="email"],
+input[type="tel"],
 textarea {
   padding: 12px 14px;
   border-radius: 12px;
@@ -938,6 +942,7 @@ textarea {
 
 input[type="text"]:focus,
 input[type="email"]:focus,
+input[type="tel"]:focus,
 textarea:focus {
   outline: none;
   border-color: var(--coral);
@@ -1160,6 +1165,26 @@ textarea {
 .result-actions button,
 .result-actions a {
   flex: 1;
+}
+
+.delivery-note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--green-soft-bg);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.delivery-note p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--green-soft-text);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.delivery-note p + p {
+  margin-top: 6px;
 }
 
 #pix-qr-image {

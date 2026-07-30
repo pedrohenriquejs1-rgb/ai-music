@@ -536,6 +536,7 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
 // ---- Etapa 4: Pagamento (Pix inline) ----
 const pixForm = document.getElementById("pix-form");
 const pixEmailInput = document.getElementById("pix-email");
+const pixPhoneInput = document.getElementById("pix-phone");
 const checkoutBtn = document.getElementById("checkout-btn");
 const checkoutStatus = document.getElementById("checkout-status");
 const pixResult = document.getElementById("pix-result");
@@ -592,6 +593,7 @@ pixForm.addEventListener("submit", async (e) => {
 
   const email = pixEmailInput.value.trim();
   if (!email) return;
+  const phone = pixPhoneInput.value.trim();
 
   lastPaidAsBundle = bundleCheckbox.checked;
 
@@ -608,7 +610,7 @@ pixForm.addEventListener("submit", async (e) => {
     const res = await fetch("/api/pix-payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, bundle: lastPaidAsBundle }),
+      body: JSON.stringify({ email, phone, bundle: lastPaidAsBundle }),
     });
 
     const data = await res.json();
@@ -665,6 +667,12 @@ function unlockPaidSong() {
   fullDownloadLink.href = lastGeneration.audioUrl;
   fullSongResult.hidden = false;
   pixResult.hidden = true;
+
+  const deliveryEmailEl = document.getElementById("delivery-email");
+  if (deliveryEmailEl) deliveryEmailEl.textContent = pixEmailInput.value.trim() || "seu e-mail";
+
+  const deliveryWhatsappNote = document.getElementById("delivery-whatsapp-note");
+  if (deliveryWhatsappNote) deliveryWhatsappNote.hidden = !pixPhoneInput.value.trim();
 
   document.getElementById("checkout-block").hidden = true;
   document.getElementById("payment-back-link").hidden = true;
