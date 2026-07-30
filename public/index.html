@@ -333,9 +333,11 @@
                 <input type="email" id="pix-email" placeholder="seunome@email.com" required />
                 <p class="field-hint">📩 Enviaremos sua música completa também para este e-mail.</p>
 
-                <label for="pix-phone">WhatsApp (opcional)</label>
-                <input type="tel" id="pix-phone" placeholder="(00) 00000-0000" />
-                <p class="field-hint">Só usamos para falar com você sobre o seu pedido, se precisar.</p>
+                <div id="whatsapp-field" hidden>
+                  <label for="pix-phone">WhatsApp (opcional)</label>
+                  <input type="tel" id="pix-phone" placeholder="(00) 00000-0000" />
+                  <p class="field-hint">Só usamos para falar com você sobre o seu pedido, se precisar.</p>
+                </div>
 
                 <button type="submit" id="checkout-btn" class="cta-btn-green full">Gerar Pix de <span id="checkout-btn-value">R$ 29,90</span> →</button>
               </form>
