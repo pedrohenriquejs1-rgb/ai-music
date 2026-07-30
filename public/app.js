@@ -151,7 +151,7 @@ function setLyricsStatus(message, isError = false) {
 
 // ---- Limite de gerações (letra e prévia) ----
 const MAX_LYRICS_GENERATIONS = 3;
-const MAX_MUSIC_GENERATIONS = 2;
+const MAX_MUSIC_GENERATIONS = 1;
 const lyricsGenerationCounter = document.getElementById("lyrics-generation-counter");
 const musicGenerationCounter = document.getElementById("music-generation-counter");
 let lyricsGenerationCount = 0;
@@ -179,7 +179,8 @@ function registerMusicGeneration() {
     generateBtn.disabled = true;
     generateBtn.textContent = "Limite de gerações atingido";
     musicGenerationCounter.classList.add("limit-reached");
-    musicGenerationCounter.textContent = `Limite de ${MAX_MUSIC_GENERATIONS} prévias atingido. Finalize o pagamento para continuar.`;
+    const previewWord = MAX_MUSIC_GENERATIONS === 1 ? "prévia" : "prévias";
+    musicGenerationCounter.textContent = `Limite de ${MAX_MUSIC_GENERATIONS} ${previewWord} atingido. Finalize o pagamento para continuar.`;
   }
 }
 
