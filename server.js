@@ -178,7 +178,7 @@ app.get("/api/download", async (req, res) => {
 });
 
 app.post("/api/pix-payment", async (req, res) => {
-  const { email, phone, bundle } = req.body;
+  const { email, phone, bundle, audioUrl } = req.body;
 
   if (!email || typeof email !== "string" || !email.includes("@")) {
     return res.status(400).json({ error: "Informe um e-mail válido para gerar o Pix." });
@@ -210,6 +210,12 @@ app.post("/api/pix-payment", async (req, res) => {
         description,
         payment_method_id: "pix",
         payer: { email },
+        external_reference: email.trim().toLowerCase(),
+        metadata: {
+          bundle: bundle ? "true" : "false",
+          audio_url_1: typeof audioUrl === "string" ? audioUrl.slice(0, 500) : "",
+          audio_url_2: "",
+        },
       }),
     });
 
@@ -254,6 +260,117 @@ app.get("/api/pix-payment/:id/status", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Falha ao checar o pagamento." });
+  }
+});
+
+app.get("/api/my-orders", async (req, res) => {
+  const { email } = req.query;
+
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    return res.status(400).json({ error: "Informe um e-mail válido." });
+  }
+
+  if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    return res.status(500).json({ error: "Pagamento não configurado." });
+  }
+
+  try {
+    const searchUrl = new URL("https://api.mercadopago.com/v1/payments/search");
+    searchUrl.searchParams.set("sort", "date_created");
+    searchUrl.searchParams.set("criteria", "desc");
+    searchUrl.searchParams.set("external_reference", email.trim().toLowerCase());
+
+    const response = await fetch(searchUrl, {
+      headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      return res.status(500).json({ error: "Falha ao buscar seus pedidos." });
+    }
+
+    const orders = (data.results || [])
+      .filter((payment) => payment.status === "approved")
+      .map((payment) => ({
+        paymentId: payment.id,
+        dateApproved: payment.date_approved,
+        amount: payment.transaction_amount,
+        bundle: payment.metadata?.bundle === "true" || payment.metadata?.bundle === true,
+        audioUrl1: payment.metadata?.audio_url_1 || null,
+        audioUrl2: payment.metadata?.audio_url_2 || null,
+      }));
+
+    res.json({ orders });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Falha ao buscar seus pedidos." });
+  }
+});
+
+app.post("/api/orders/:paymentId/second-song", async (req, res) => {
+  const { paymentId } = req.params;
+  const { email, audioUrl } = req.body;
+
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    return res.status(400).json({ error: "E-mail inválido." });
+  }
+
+  if (!audioUrl || typeof audioUrl !== "string") {
+    return res.status(400).json({ error: "Link da música ausente." });
+  }
+
+  if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    return res.status(500).json({ error: "Pagamento não configurado." });
+  }
+
+  try {
+    const getResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` },
+    });
+    const payment = await getResponse.json();
+
+    if (!getResponse.ok) {
+      return res.status(404).json({ error: "Pedido não encontrado." });
+    }
+
+    const ownsOrder = payment.external_reference === email.trim().toLowerCase();
+    const isApprovedBundle = payment.status === "approved" && payment.metadata?.bundle === "true";
+
+    if (!ownsOrder || !isApprovedBundle) {
+      return res.status(403).json({ error: "Pedido inválido para essa operação." });
+    }
+
+    if (payment.metadata?.audio_url_2) {
+      return res.json({ ok: true, alreadySaved: true });
+    }
+
+    const putResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        metadata: {
+          bundle: "true",
+          audio_url_1: payment.metadata?.audio_url_1 || "",
+          audio_url_2: audioUrl.slice(0, 500),
+        },
+      }),
+    });
+
+    if (!putResponse.ok) {
+      const putData = await putResponse.json();
+      console.error(putData);
+      return res.status(500).json({ error: "Falha ao salvar a segunda música." });
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Falha ao salvar a segunda música." });
   }
 });
 

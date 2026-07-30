@@ -37,6 +37,8 @@
 <body>
   <!-- Hero -->
   <header class="hero">
+    <button type="button" id="my-orders-btn" class="my-orders-link">Já comprou? Ver meus pedidos</button>
+
     <div class="logo">🎵 <span>Minha Música IA</span></div>
 
     <p class="eyebrow">MÚSICA PERSONALIZADA FEITA POR INTELIGÊNCIA ARTIFICIAL</p>
@@ -85,6 +87,31 @@
   <!-- Lightbox dos depoimentos -->
   <div class="lightbox-overlay" id="lightbox-overlay" hidden>
     <img id="lightbox-image" src="" alt="Depoimento de cliente ampliado" />
+  </div>
+
+  <!-- Meus Pedidos -->
+  <div class="modal-overlay" id="orders-overlay" hidden>
+    <div class="modal-center">
+      <div class="modal-panel">
+        <button type="button" id="orders-close-btn" class="modal-close" aria-label="Fechar">×</button>
+
+        <div class="modal-content">
+          <h2 class="panel-title">Meus pedidos</h2>
+          <p class="subtitle">Digite o e-mail usado na compra para ver e baixar suas músicas.</p>
+
+          <form id="orders-search-form">
+            <label for="orders-email-input">Seu e-mail</label>
+            <input type="email" id="orders-email-input" placeholder="seunome@email.com" required />
+            <button type="submit" id="orders-search-btn" class="cta-btn-green full">Buscar meus pedidos →</button>
+          </form>
+
+          <div id="orders-status" class="status" hidden></div>
+          <div id="orders-list"></div>
+
+          <button type="button" id="orders-new-song-btn" class="cta-btn full">🎵 Criar nova música →</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Modal -->
@@ -348,7 +375,7 @@
                 </ul>
               </div>
 
-              <label class="upsell-card" for="bundle-checkbox" hidden>
+              <label class="upsell-card" for="bundle-checkbox">
                 <span class="upsell-ribbon">MAIS PEDIDO</span>
                 <input type="checkbox" id="bundle-checkbox" />
                 <span class="upsell-content">

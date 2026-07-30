@@ -44,6 +44,126 @@ lightboxOverlay.addEventListener("click", () => {
   lightboxImage.src = "";
 });
 
+// ---- Meus Pedidos ----
+const ordersOverlay = document.getElementById("orders-overlay");
+const ordersSearchForm = document.getElementById("orders-search-form");
+const ordersEmailInput = document.getElementById("orders-email-input");
+const ordersSearchBtn = document.getElementById("orders-search-btn");
+const ordersStatus = document.getElementById("orders-status");
+const ordersList = document.getElementById("orders-list");
+
+function setOrdersStatus(message, isError = false) {
+  ordersStatus.hidden = !message;
+  ordersStatus.textContent = message;
+  ordersStatus.classList.toggle("error", isError);
+}
+
+document.getElementById("my-orders-btn").addEventListener("click", () => {
+  ordersOverlay.hidden = false;
+});
+
+document.getElementById("orders-close-btn").addEventListener("click", () => {
+  ordersOverlay.hidden = true;
+});
+
+function formatOrderDate(isoString) {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function renderOrderCard(order) {
+  const card = document.createElement("div");
+  card.className = "order-card";
+
+  const badge = order.bundle ? `<span class="order-card-badge">Promoção 2 músicas</span>` : "";
+
+  const songs = [];
+  if (order.audioUrl1) {
+    songs.push({ label: order.bundle ? "Música 1" : "Sua música", url: order.audioUrl1 });
+  }
+  if (order.audioUrl2) {
+    songs.push({ label: "Música 2", url: order.audioUrl2 });
+  }
+
+  const songsHtml = songs
+    .map(
+      (song, i) => `
+        <div class="order-song">
+          <p class="order-song-label">${song.label}</p>
+          <audio controls src="${song.url}"></audio>
+          <a class="secondary-btn" download href="/api/download?url=${encodeURIComponent(song.url)}&filename=minha-musica-${i + 1}.mp3">⬇️ Baixar MP3</a>
+        </div>
+      `
+    )
+    .join("");
+
+  const secondSongBtnHtml =
+    order.bundle && !order.audioUrl2
+      ? `<button type="button" class="cta-btn-green full order-create-second-btn" data-payment-id="${order.paymentId}">🎁 Criar minha 2ª música (já paga) →</button>`
+      : "";
+
+  card.innerHTML = `
+    <div class="order-card-header">
+      <span class="order-card-date">${formatOrderDate(order.dateApproved)}</span>
+      ${badge}
+    </div>
+    ${songsHtml}
+    ${secondSongBtnHtml}
+  `;
+
+  const secondSongBtn = card.querySelector(".order-create-second-btn");
+  if (secondSongBtn) {
+    secondSongBtn.addEventListener("click", () => {
+      currentPaymentId = order.paymentId;
+      pixEmailInput.value = ordersEmailInput.value.trim();
+      secondSongPrepaid = true;
+      ordersOverlay.hidden = true;
+      openModal();
+      document.getElementById("create-second-song-btn").click();
+    });
+  }
+
+  return card;
+}
+
+ordersSearchForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = ordersEmailInput.value.trim();
+  if (!email) return;
+
+  ordersSearchBtn.disabled = true;
+  ordersList.innerHTML = "";
+  setOrdersStatus("Buscando seus pedidos...");
+
+  try {
+    const res = await fetch(`/api/my-orders?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao buscar seus pedidos.");
+    }
+
+    if (!data.orders || data.orders.length === 0) {
+      setOrdersStatus("Nenhum pedido encontrado para esse e-mail.", true);
+      return;
+    }
+
+    setOrdersStatus("");
+    data.orders.forEach((order) => ordersList.appendChild(renderOrderCard(order)));
+  } catch (err) {
+    setOrdersStatus(err.message, true);
+  } finally {
+    ordersSearchBtn.disabled = false;
+  }
+});
+
+document.getElementById("orders-new-song-btn").addEventListener("click", () => {
+  ordersOverlay.hidden = true;
+  openModal();
+});
+
 document.querySelectorAll(".back-link").forEach((btn) => {
   btn.addEventListener("click", () => goToStep(btn.dataset.back));
 });
@@ -576,7 +696,7 @@ document.getElementById("continue-payment-btn").addEventListener("click", () => 
 
   if (secondSongPrepaid) {
     secondSongPrepaid = false;
-    unlockPaidSong();
+    unlockPaidSong({ isSecondSong: true });
   }
 });
 
@@ -706,6 +826,7 @@ const fullPlayer = setupCustomPlayer(
 );
 
 let pollTimer = null;
+let currentPaymentId = null;
 
 function setCheckoutStatus(message, isError = false) {
   checkoutStatus.hidden = !message;
@@ -740,7 +861,7 @@ pixForm.addEventListener("submit", async (e) => {
     const res = await fetch("/api/pix-payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, phone, bundle: lastPaidAsBundle }),
+      body: JSON.stringify({ email, phone, bundle: lastPaidAsBundle, audioUrl: lastGeneration.audioUrl }),
     });
 
     const data = await res.json();
@@ -749,6 +870,7 @@ pixForm.addEventListener("submit", async (e) => {
       throw new Error(data.error || "Erro ao gerar o Pix.");
     }
 
+    currentPaymentId = data.paymentId;
     pixQrImage.src = `data:image/png;base64,${data.qrCodeBase64}`;
     pixCopyPaste.value = data.qrCode;
     pixResult.hidden = false;
@@ -790,7 +912,7 @@ async function checkPixStatus(paymentId) {
   }
 }
 
-function unlockPaidSong() {
+function unlockPaidSong(options = {}) {
   clearPendingSong();
   clearGenerationCounts();
   fullAudioPlayer.src = lastGeneration.audioUrl;
@@ -810,17 +932,36 @@ function unlockPaidSong() {
   document.getElementById("success-banner").hidden = false;
 
   const createSecondSongBtn = document.getElementById("create-second-song-btn");
-  if (lastPaidAsBundle) {
+  if (options.isSecondSong) {
+    createSecondSongBtn.hidden = true;
+    setCheckoutStatus("Sua 2ª música está liberada abaixo e também foi enviada para o seu e-mail.");
+    saveSecondSong(currentPaymentId, lastGeneration.audioUrl, pixEmailInput.value.trim());
+  } else if (lastPaidAsBundle) {
     createSecondSongBtn.hidden = false;
-    setCheckoutStatus("Sua música está liberada abaixo — e você ainda tem +1 música garantida na promoção.");
+    setCheckoutStatus("Sua música está liberada abaixo — e você ainda tem +1 música garantida na promoção. Pode criar agora ou voltar depois em \"Meus pedidos\".");
+    trackPixel("Purchase", { value: 50.0, currency: "BRL" });
   } else {
     createSecondSongBtn.hidden = true;
     setCheckoutStatus("Sua música completa está liberada abaixo e também foi enviada para o seu e-mail.");
+    trackPixel("Purchase", { value: 29.9, currency: "BRL" });
   }
   lastPaidAsBundle = false;
 
-  trackPixel("Purchase", { value: 29.9, currency: "BRL" });
   sendSongEmail();
+}
+
+async function saveSecondSong(paymentId, audioUrl, email) {
+  if (!paymentId) return;
+
+  try {
+    await fetch(`/api/orders/${paymentId}/second-song`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, audioUrl }),
+    });
+  } catch (err) {
+    // não bloqueia a experiência se a persistência falhar — a música já foi entregue
+  }
 }
 
 async function sendSongEmail() {

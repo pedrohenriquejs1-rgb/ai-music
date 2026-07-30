@@ -126,6 +126,26 @@ body {
   margin-bottom: 32px;
 }
 
+.my-orders-link {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #e8dcdc;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.my-orders-link:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
 .eyebrow {
   color: var(--coral-light);
   font-size: 0.8rem;
@@ -1144,6 +1164,69 @@ textarea {
   padding: 20px;
   border-radius: 16px;
   text-align: center;
+}
+
+/* ---- Meus Pedidos ---- */
+#orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.order-card {
+  background: white;
+  border: 1.5px solid var(--input-border);
+  border-radius: 16px;
+  padding: 18px;
+  text-align: left;
+}
+
+.order-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.order-card-date {
+  font-size: 0.8rem;
+  color: var(--card-muted);
+  font-weight: 600;
+}
+
+.order-card-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: var(--green-soft-bg);
+  color: var(--green-soft-text);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.order-song {
+  margin-bottom: 14px;
+}
+
+.order-song:last-child {
+  margin-bottom: 0;
+}
+
+.order-song-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--card-text);
+  margin-bottom: 6px;
+}
+
+.order-song audio {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.order-song a,
+.order-song button {
+  width: 100%;
 }
 
 .result h3 {
