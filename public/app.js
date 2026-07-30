@@ -22,6 +22,10 @@ function closeModal() {
 document.getElementById("start-btn").addEventListener("click", openModal);
 document.getElementById("modal-close-btn").addEventListener("click", closeModal);
 
+document.getElementById("see-testimonials-btn").addEventListener("click", () => {
+  document.querySelector(".testimonials").scrollIntoView({ behavior: "smooth" });
+});
+
 // ---- Depoimentos ----
 document.getElementById("testimonials-cta-btn").addEventListener("click", openModal);
 

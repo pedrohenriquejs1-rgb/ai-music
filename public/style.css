@@ -308,6 +308,26 @@ body {
   margin: 0;
 }
 
+.see-testimonials-btn {
+  margin-top: 6px;
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-family: var(--font-body);
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(25, 180, 116, 0.45);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.see-testimonials-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(25, 180, 116, 0.55);
+}
+
 .cta-btn-green {
   background: var(--green);
   color: white;
