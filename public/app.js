@@ -1,3 +1,8 @@
+// ---- Meta Pixel ----
+function trackPixel(event, params) {
+  if (typeof fbq === "function") fbq("track", event, params);
+}
+
 // ---- Modal & Etapas ----
 const modalOverlay = document.getElementById("modal-overlay");
 const stepEls = document.querySelectorAll(".mm-step");
@@ -7,6 +12,7 @@ const STEP_ORDER = ["story-tab", "lyrics-tab", "music-tab", "payment-tab"];
 
 function openModal() {
   modalOverlay.hidden = false;
+  trackPixel("Lead");
 }
 
 function closeModal() {
@@ -510,6 +516,7 @@ pixForm.addEventListener("submit", async (e) => {
     pixCopyPaste.value = data.qrCode;
     pixResult.hidden = false;
     setCheckoutStatus("Escaneie o QR Code ou copie o código Pix. Aguardando pagamento...");
+    trackPixel("InitiateCheckout", { value: 29.9, currency: "BRL" });
 
     pollTimer = setInterval(() => checkPixStatus(data.paymentId), 4000);
   } catch (err) {
@@ -548,4 +555,5 @@ function unlockPaidSong() {
   fullSongResult.hidden = false;
   pixResult.hidden = true;
   setCheckoutStatus("Pagamento confirmado! Sua música completa está liberada abaixo.");
+  trackPixel("Purchase", { value: 29.9, currency: "BRL" });
 }
