@@ -962,6 +962,13 @@ textarea {
   min-height: 70px;
 }
 
+#prompt:read-only {
+  background: var(--card-bg);
+  color: var(--card-muted);
+  cursor: not-allowed;
+  resize: none;
+}
+
 #lyrics {
   min-height: 110px;
 }

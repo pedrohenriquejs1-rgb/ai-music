@@ -79,6 +79,8 @@ document.getElementById("own-lyrics-continue-btn").addEventListener("click", () 
   if (!ownLyrics) return;
 
   document.getElementById("lyrics").value = ownLyrics;
+  document.getElementById("prompt").readOnly = false;
+  document.getElementById("prompt-lock-hint").hidden = true;
   goToStep("music-tab");
 });
 
@@ -213,6 +215,8 @@ useLyricsBtn.addEventListener("click", () => {
   const mood = document.getElementById("lyrics-mood").value.trim();
 
   document.getElementById("prompt").value = `${genre}, clima ${mood}`;
+  document.getElementById("prompt").readOnly = true;
+  document.getElementById("prompt-lock-hint").hidden = false;
   document.getElementById("lyrics").value = lyricsOutput.value;
 
   goToStep("music-tab");
@@ -527,6 +531,8 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
   document.querySelectorAll("#recipient-chip-grid .chip").forEach((c) => c.classList.remove("selected"));
   document.getElementById("lyrics-extra").value = "";
   promptInput.value = "";
+  promptInput.readOnly = false;
+  document.getElementById("prompt-lock-hint").hidden = true;
   lyricsInput.value = "";
   lyricsResult.hidden = true;
   resultEl.hidden = true;
