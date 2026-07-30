@@ -595,6 +595,21 @@ simulatePaymentBtn.addEventListener("click", () => {
 const fullSongResult = document.getElementById("full-song-result");
 const fullAudioPlayer = document.getElementById("full-audio-player");
 const fullDownloadLink = document.getElementById("full-download-link");
+const shareWhatsappBtn = document.getElementById("share-whatsapp-btn");
+
+shareWhatsappBtn.addEventListener("click", () => {
+  if (!lastGeneration?.audioUrl) return;
+
+  const shareText = "Ouça a música que eu criei com a Minha Música IA! 🎵";
+
+  if (navigator.share) {
+    navigator.share({ title: "Minha Música IA", text: shareText, url: lastGeneration.audioUrl }).catch(() => {});
+    return;
+  }
+
+  const waText = `${shareText} ${lastGeneration.audioUrl}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, "_blank");
+});
 
 // ---- Upsell: 2 músicas por R$ 50,00 ----
 const bundleCheckbox = document.getElementById("bundle-checkbox");
