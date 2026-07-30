@@ -70,6 +70,8 @@ document.getElementById("story-continue-btn").addEventListener("click", () => {
     ownLyricsBlock.hidden = true;
     lyricsStepTitle.textContent = "Vamos escrever a letra";
     lyricsStepSubtitle.textContent = "Preencha as informações abaixo e a IA escreve a letra pra você.";
+    document.getElementById("lyrics-card-recipient").hidden = false;
+    document.getElementById("lyrics-card-genre").hidden = true;
   }
   goToStep("lyrics-tab");
 });
@@ -110,6 +112,28 @@ function setupChipGrid(gridId, hiddenInputId, selectId) {
 
 setupChipGrid("genre-chip-grid", "lyrics-genre", "lyrics-genre-select");
 setupChipGrid("recipient-chip-grid", "lyrics-recipient", "lyrics-recipient-select");
+
+// ---- Sub-etapas do card de letra: destinatário → gênero/história ----
+const lyricsCardRecipient = document.getElementById("lyrics-card-recipient");
+const lyricsCardGenre = document.getElementById("lyrics-card-genre");
+
+document.getElementById("recipient-continue-btn").addEventListener("click", () => {
+  const recipient = document.getElementById("lyrics-recipient").value.trim();
+  if (!recipient) {
+    setLyricsStatus("Escolha para quem é a música antes de continuar.", true);
+    return;
+  }
+
+  setLyricsStatus("");
+  lyricsCardRecipient.hidden = true;
+  lyricsCardGenre.hidden = false;
+});
+
+document.getElementById("recipient-back-btn").addEventListener("click", () => {
+  setLyricsStatus("");
+  lyricsCardGenre.hidden = true;
+  lyricsCardRecipient.hidden = false;
+});
 
 // ---- Gerar Letra ----
 const lyricsBtn = document.getElementById("lyrics-btn");
@@ -531,6 +555,8 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
   document.getElementById("lyrics-recipient-select").value = "";
   document.getElementById("lyrics-recipient-name").value = "";
   document.querySelectorAll("#recipient-chip-grid .chip").forEach((c) => c.classList.remove("selected"));
+  document.getElementById("lyrics-card-recipient").hidden = false;
+  document.getElementById("lyrics-card-genre").hidden = true;
   document.getElementById("lyrics-extra").value = "";
   promptInput.value = "";
   promptInput.readOnly = false;

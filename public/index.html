@@ -132,7 +132,7 @@
             <button type="button" class="back-link" data-back="story-tab">← Voltar</button>
 
             <form id="lyrics-form">
-              <div class="form-card">
+              <div class="form-card" id="lyrics-card-recipient">
                 <label>Para quem é essa música?</label>
                 <p class="field-hint">Toque em quem você quer emocionar com a sua música.</p>
                 <div class="chip-grid" id="recipient-chip-grid">
@@ -171,9 +171,13 @@
                   id="lyrics-recipient-name"
                   placeholder="Ex: Mariana"
                 />
+
+                <button type="button" id="recipient-continue-btn" class="cta-btn full">Continuar →</button>
               </div>
 
-              <div class="form-card">
+              <div class="form-card" id="lyrics-card-genre" hidden>
+                <button type="button" id="recipient-back-btn" class="card-back-link">← Voltar</button>
+
                 <label>Gênero musical</label>
                 <div class="chip-grid" id="genre-chip-grid">
                   <button type="button" class="chip" data-value="Sertanejo">Sertanejo</button>
@@ -208,9 +212,9 @@
                   placeholder="Conte a história, momentos especiais e características da pessoa para deixar a letra única..."
                 ></textarea>
                 <p class="field-hint" id="lyrics-extra-hint">Mínimo de 20 caracteres.</p>
-              </div>
 
-              <button type="submit" id="lyrics-btn" class="cta-btn full">Gerar Letra →</button>
+                <button type="submit" id="lyrics-btn" class="cta-btn full">Gerar Letra →</button>
+              </div>
             </form>
 
             <div id="own-lyrics-block" hidden>

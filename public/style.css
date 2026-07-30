@@ -674,6 +674,24 @@ select:focus {
   display: none;
 }
 
+.card-back-link {
+  display: block;
+  margin: 0 0 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #a98e88;
+  font-weight: 800;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  text-align: left;
+}
+
+.card-back-link:hover {
+  color: var(--coral);
+}
+
 .test-link {
   display: block;
   margin: 14px auto 0;
@@ -942,6 +960,10 @@ label {
 
 .form-card > label:first-child {
   margin-top: 0;
+}
+
+.form-card[hidden] {
+  display: none;
 }
 
 .label-optional {
