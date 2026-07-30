@@ -557,6 +557,9 @@ pixForm.addEventListener("submit", async (e) => {
   checkoutBtn.disabled = true;
   pixResult.hidden = true;
   fullSongResult.hidden = true;
+  document.getElementById("checkout-block").hidden = false;
+  document.getElementById("payment-back-link").hidden = false;
+  document.getElementById("success-banner").hidden = true;
   if (pollTimer) clearInterval(pollTimer);
   setCheckoutStatus("Gerando seu Pix...");
 
