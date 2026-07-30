@@ -621,18 +621,44 @@ const fullAudioPlayer = document.getElementById("full-audio-player");
 const fullDownloadLink = document.getElementById("full-download-link");
 const shareWhatsappBtn = document.getElementById("share-whatsapp-btn");
 
-shareWhatsappBtn.addEventListener("click", () => {
+shareWhatsappBtn.addEventListener("click", async () => {
   if (!lastGeneration?.audioUrl) return;
 
   const shareText = "Ouça a música que eu criei com a Minha Música IA! 🎵";
 
-  if (navigator.share) {
-    navigator.share({ title: "Minha Música IA", text: shareText, url: lastGeneration.audioUrl }).catch(() => {});
+  if (!navigator.share) {
+    const waText = `${shareText} ${lastGeneration.audioUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, "_blank");
     return;
   }
 
-  const waText = `${shareText} ${lastGeneration.audioUrl}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, "_blank");
+  const originalLabel = shareWhatsappBtn.textContent;
+
+  try {
+    shareWhatsappBtn.disabled = true;
+    shareWhatsappBtn.textContent = "Preparando arquivo...";
+
+    const audioRes = await fetch(lastGeneration.audioUrl);
+    const audioBlob = await audioRes.blob();
+    const file = new File([audioBlob], "minha-musica.mp3", { type: "audio/mpeg" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Minha Música IA", text: shareText });
+    } else {
+      await navigator.share({ title: "Minha Música IA", text: shareText, url: lastGeneration.audioUrl });
+    }
+  } catch (err) {
+    if (err?.name === "AbortError") return;
+
+    try {
+      await navigator.share({ title: "Minha Música IA", text: shareText, url: lastGeneration.audioUrl });
+    } catch (err2) {
+      // usuário cancelou ou o navegador bloqueou o compartilhamento — nada a fazer
+    }
+  } finally {
+    shareWhatsappBtn.disabled = false;
+    shareWhatsappBtn.textContent = originalLabel;
+  }
 });
 
 // ---- Upsell: 2 músicas por R$ 50,00 ----
