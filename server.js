@@ -34,11 +34,7 @@ const openai = new OpenAI({
 app.use(express.json());
 app.use(express.static("public"));
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function generateSunoSong({ style, lyrics, title, vocalGender }) {
+async function startSunoGeneration({ style, lyrics, title, vocalGender }) {
   const genRes = await fetch("https://api.sunoapi.org/api/v1/generate", {
     method: "POST",
     headers: {
@@ -62,33 +58,31 @@ async function generateSunoSong({ style, lyrics, title, vocalGender }) {
     throw new Error(genData.msg || "Falha ao iniciar a geração da música.");
   }
 
-  const taskId = genData.data.taskId;
-
-  for (let i = 0; i < 50; i++) {
-    await sleep(6000);
-
-    const statusRes = await fetch(
-      `https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`,
-      { headers: { Authorization: `Bearer ${process.env.SUNO_API_KEY}` } }
-    );
-    const statusData = await statusRes.json();
-    const status = statusData.data?.status;
-
-    if (status === "SUCCESS") {
-      const track = statusData.data.response?.sunoData?.[0];
-      if (!track) throw new Error("Música gerada, mas sem áudio retornado.");
-      return { audioUrl: track.audioUrl, duration: track.duration };
-    }
-
-    if (status && status.includes("FAILED")) {
-      throw new Error("A geração da música falhou.");
-    }
-  }
-
-  throw new Error("Tempo esgotado esperando a música ficar pronta.");
+  return genData.data.taskId;
 }
 
-app.post("/api/generate", async (req, res) => {
+async function checkSunoStatus(taskId) {
+  const statusRes = await fetch(
+    `https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`,
+    { headers: { Authorization: `Bearer ${process.env.SUNO_API_KEY}` } }
+  );
+  const statusData = await statusRes.json();
+  const status = statusData.data?.status;
+
+  if (status === "SUCCESS") {
+    const track = statusData.data.response?.sunoData?.[0];
+    if (!track) throw new Error("Música gerada, mas sem áudio retornado.");
+    return { done: true, audioUrl: track.audioUrl, duration: track.duration };
+  }
+
+  if (status && status.includes("FAILED")) {
+    throw new Error("A geração da música falhou.");
+  }
+
+  return { done: false };
+}
+
+app.post("/api/generate/start", async (req, res) => {
   const { prompt, lyrics, voiceGender } = req.body;
 
   if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
@@ -100,17 +94,27 @@ app.post("/api/generate", async (req, res) => {
   }
 
   try {
-    const { audioUrl, duration } = await generateSunoSong({
+    const taskId = await startSunoGeneration({
       style: prompt.trim(),
       lyrics: lyrics.trim(),
       title: prompt.trim().slice(0, 60) || "Minha Música",
       vocalGender: voiceGender === "masculina" ? "m" : "f",
     });
 
-    res.json({ audioUrl, duration, previewSeconds: PREVIEW_SECONDS });
+    res.json({ taskId, previewSeconds: PREVIEW_SECONDS });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Falha ao gerar a musica. Verifique sua API key e tente novamente." });
+    res.status(500).json({ error: "Falha ao iniciar a geração da música. Verifique sua API key e tente novamente." });
+  }
+});
+
+app.get("/api/generate/status/:taskId", async (req, res) => {
+  try {
+    const result = await checkSunoStatus(req.params.taskId);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Falha ao gerar a musica. Tente novamente." });
   }
 });
 

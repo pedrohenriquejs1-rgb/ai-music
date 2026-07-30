@@ -16,6 +16,10 @@ function closeModal() {
 document.getElementById("start-btn").addEventListener("click", openModal);
 document.getElementById("modal-close-btn").addEventListener("click", closeModal);
 
+document.querySelectorAll(".back-link").forEach((btn) => {
+  btn.addEventListener("click", () => goToStep(btn.dataset.back));
+});
+
 function goToStep(tabId) {
   const stepIndex = STEP_ORDER.indexOf(tabId);
 
@@ -59,7 +63,7 @@ document.getElementById("story-continue-btn").addEventListener("click", () => {
     lyricsForm.hidden = false;
     ownLyricsBlock.hidden = true;
     lyricsStepTitle.textContent = "Vamos escrever a letra";
-    lyricsStepSubtitle.textContent = "Preencha as informações abaixo e o ChatGPT escreve a letra pra você.";
+    lyricsStepSubtitle.textContent = "Preencha as informações abaixo e a IA escreve a letra pra você.";
   }
   goToStep("lyrics-tab");
 });
@@ -261,6 +265,8 @@ function startGeneratingCard() {
   progressFill.style.width = "0%";
   generatingStatus.textContent = GENERATING_MESSAGES[0];
 
+  generatingCard.scrollIntoView({ behavior: "smooth", block: "center" });
+
   generatingTimer = setInterval(() => {
     generatingElapsed += 1;
 
@@ -354,6 +360,52 @@ const previewPlayer = setupCustomPlayer(
   document.getElementById("player-time")
 );
 
+let musicPollTimer = null;
+
+function finishMusicGeneration() {
+  stopGeneratingCard();
+  if (musicGenerationCount < MAX_GENERATIONS) generateBtn.disabled = false;
+}
+
+function pollMusicGeneration(taskId, prompt, lyrics) {
+  if (musicPollTimer) clearInterval(musicPollTimer);
+
+  async function check() {
+    try {
+      const res = await fetch(`/api/generate/status/${taskId}`);
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Erro ao gerar a música.");
+
+      if (data.done) {
+        clearInterval(musicPollTimer);
+        musicPollTimer = null;
+
+        audioPlayer.src = data.audioUrl;
+        previewPlayer.setCap(PREVIEW_SECONDS);
+        resultEl.hidden = false;
+        setStatus("");
+        lastGeneration = { prompt, lyrics, audioUrl: data.audioUrl };
+        registerMusicGeneration();
+        finishMusicGeneration();
+      }
+    } catch (err) {
+      clearInterval(musicPollTimer);
+      musicPollTimer = null;
+      setStatus(err.message, true);
+      finishMusicGeneration();
+    }
+  }
+
+  musicPollTimer = setInterval(check, 5000);
+
+  // Se a pessoa voltar pro app depois de um tempo em segundo plano,
+  // confere o status na hora em vez de esperar o próximo intervalo.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && musicPollTimer) check();
+  });
+}
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -372,7 +424,7 @@ form.addEventListener("submit", async (e) => {
   startGeneratingCard();
 
   try {
-    const res = await fetch("/api/generate", {
+    const res = await fetch("/api/generate/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt, lyrics, voiceGender: voiceGenderInput.value }),
@@ -381,20 +433,13 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "Erro ao gerar a música.");
+      throw new Error(data.error || "Erro ao iniciar a geração da música.");
     }
 
-    audioPlayer.src = data.audioUrl;
-    previewPlayer.setCap(PREVIEW_SECONDS);
-    resultEl.hidden = false;
-    setStatus("");
-    lastGeneration = { prompt, lyrics, audioUrl: data.audioUrl };
-    registerMusicGeneration();
+    pollMusicGeneration(data.taskId, prompt, lyrics);
   } catch (err) {
     setStatus(err.message, true);
-  } finally {
-    stopGeneratingCard();
-    if (musicGenerationCount < MAX_GENERATIONS) generateBtn.disabled = false;
+    finishMusicGeneration();
   }
 });
 

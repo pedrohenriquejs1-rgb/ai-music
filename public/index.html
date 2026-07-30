@@ -95,8 +95,10 @@
             <p class="panel-eyebrow">PASSO 2 DE 4</p>
             <h2 class="panel-title" id="lyrics-step-title">Vamos escrever a letra</h2>
             <p class="subtitle" id="lyrics-step-subtitle">
-              Preencha as informações abaixo e o ChatGPT escreve a letra pra você.
+              Preencha as informações abaixo e a IA escreve a letra pra você.
             </p>
+
+            <button type="button" class="back-link" data-back="story-tab">← Voltar</button>
 
             <form id="lyrics-form">
               <label for="lyrics-theme">Tema / assunto</label>
@@ -185,6 +187,8 @@
             <h2 class="panel-title">Agora, vamos compor</h2>
             <p class="subtitle">Descreva o estilo, ritmo e instrumentos da música que você imagina.</p>
 
+            <button type="button" class="back-link" data-back="lyrics-tab">← Voltar</button>
+
             <form id="generate-form">
               <label for="prompt">Estilo, ritmo e instrumentos</label>
               <textarea
@@ -253,9 +257,23 @@
             <h2 class="panel-title">Finalize seu pedido</h2>
             <p class="subtitle">Pague para receber a música completa, em alta qualidade, sem cortes.</p>
 
-            <div class="price-card">
-              <span class="price-label">Música completa personalizada</span>
-              <span class="price-value">R$ 29,90</span>
+            <button type="button" class="back-link" data-back="music-tab">← Voltar</button>
+
+            <div class="order-summary">
+              <div class="order-row">
+                <span>Música completa personalizada</span>
+                <span>R$ 29,90</span>
+              </div>
+              <ul class="order-features">
+                <li>✓ Áudio em alta qualidade (MP3)</li>
+                <li>✓ Liberação imediata após o pagamento</li>
+                <li>✓ Pagamento único, sem assinatura</li>
+              </ul>
+              <div class="order-divider"></div>
+              <div class="order-row order-total">
+                <span>Total</span>
+                <span>R$ 29,90</span>
+              </div>
             </div>
 
             <form id="pix-form">
