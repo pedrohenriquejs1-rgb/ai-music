@@ -456,7 +456,6 @@ document.getElementById("continue-payment-btn").addEventListener("click", () => 
 
   if (secondSongPrepaid) {
     secondSongPrepaid = false;
-    document.getElementById("pix-form").hidden = true;
     unlockPaidSong();
   }
 });
@@ -482,7 +481,9 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
   lyricsResult.hidden = true;
   resultEl.hidden = true;
 
-  document.getElementById("pix-form").hidden = false;
+  document.getElementById("checkout-block").hidden = false;
+  document.getElementById("payment-back-link").hidden = false;
+  document.getElementById("success-banner").hidden = true;
   document.getElementById("bundle-checkbox").checked = false;
   updateOrderTotal();
   fullSongResult.hidden = true;
@@ -609,13 +610,17 @@ function unlockPaidSong() {
   fullSongResult.hidden = false;
   pixResult.hidden = true;
 
+  document.getElementById("checkout-block").hidden = true;
+  document.getElementById("payment-back-link").hidden = true;
+  document.getElementById("success-banner").hidden = false;
+
   const createSecondSongBtn = document.getElementById("create-second-song-btn");
   if (lastPaidAsBundle) {
     createSecondSongBtn.hidden = false;
-    setCheckoutStatus("Pagamento confirmado! Sua música está liberada abaixo — e você ainda tem +1 música garantida na promoção.");
+    setCheckoutStatus("Sua música está liberada abaixo — e você ainda tem +1 música garantida na promoção.");
   } else {
     createSecondSongBtn.hidden = true;
-    setCheckoutStatus("Pagamento confirmado! Sua música completa está liberada abaixo e também foi enviada para o seu e-mail.");
+    setCheckoutStatus("Sua música completa está liberada abaixo e também foi enviada para o seu e-mail.");
   }
   lastPaidAsBundle = false;
 

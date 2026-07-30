@@ -279,54 +279,61 @@
             <h2 class="panel-title">Finalize seu pedido</h2>
             <p class="subtitle">Pague para receber a música completa, em alta qualidade, sem cortes.</p>
 
-            <button type="button" class="back-link" data-back="music-tab">← Voltar</button>
+            <button type="button" id="payment-back-link" class="back-link" data-back="music-tab">← Voltar</button>
 
-            <div class="order-summary">
-              <div class="order-row">
-                <span>Música completa personalizada</span>
-                <span>R$ 29,90</span>
+            <div id="checkout-block">
+              <div class="order-summary">
+                <div class="order-row">
+                  <span>Música completa personalizada</span>
+                  <span>R$ 29,90</span>
+                </div>
+                <ul class="order-features">
+                  <li>✓ Áudio em alta qualidade (MP3)</li>
+                  <li>✓ Liberação imediata após o pagamento</li>
+                  <li>✓ Pagamento único, sem assinatura</li>
+                </ul>
               </div>
-              <ul class="order-features">
-                <li>✓ Áudio em alta qualidade (MP3)</li>
-                <li>✓ Liberação imediata após o pagamento</li>
-                <li>✓ Pagamento único, sem assinatura</li>
-              </ul>
+
+              <label class="upsell-card" for="bundle-checkbox">
+                <span class="upsell-ribbon">MAIS PEDIDO</span>
+                <input type="checkbox" id="bundle-checkbox" />
+                <span class="upsell-content">
+                  <span class="upsell-badge">🔥 PROMOÇÃO</span>
+                  <span class="upsell-title">Leve 2 músicas por R$ 50,00</span>
+                  <span class="upsell-desc">Crie mais uma música completa e economize R$ 9,80.</span>
+                </span>
+              </label>
+
+              <div class="order-summary">
+                <div class="order-row order-total">
+                  <span>Total</span>
+                  <span id="order-total-value">R$ 29,90</span>
+                </div>
+              </div>
+
+              <form id="pix-form">
+                <label for="pix-email">Seu e-mail</label>
+                <input type="email" id="pix-email" placeholder="seunome@email.com" required />
+
+                <button type="submit" id="checkout-btn" class="cta-btn-green full">Gerar Pix de <span id="checkout-btn-value">R$ 29,90</span> →</button>
+              </form>
+
+              <div id="pix-result" class="result" hidden>
+                <h3>Pague com Pix</h3>
+                <img id="pix-qr-image" alt="QR Code Pix" />
+                <label for="pix-copy-paste">Pix copia e cola</label>
+                <textarea id="pix-copy-paste" readonly></textarea>
+                <button type="button" id="copy-pix-btn" class="secondary-btn">Copiar código Pix</button>
+                <p class="field-hint">Assim que o pagamento for confirmado, sua música completa aparece aqui automaticamente.</p>
+              </div>
             </div>
 
-            <label class="upsell-card" for="bundle-checkbox">
-              <span class="upsell-ribbon">MAIS PEDIDO</span>
-              <input type="checkbox" id="bundle-checkbox" />
-              <span class="upsell-content">
-                <span class="upsell-badge">🔥 PROMOÇÃO</span>
-                <span class="upsell-title">Leve 2 músicas por R$ 50,00</span>
-                <span class="upsell-desc">Crie mais uma música completa e economize R$ 9,80.</span>
-              </span>
-            </label>
-
-            <div class="order-summary">
-              <div class="order-row order-total">
-                <span>Total</span>
-                <span id="order-total-value">R$ 29,90</span>
-              </div>
+            <div id="success-banner" class="success-banner" hidden>
+              <span class="success-icon">✓</span>
+              <span>Pagamento confirmado!</span>
             </div>
-
-            <form id="pix-form">
-              <label for="pix-email">Seu e-mail</label>
-              <input type="email" id="pix-email" placeholder="seunome@email.com" required />
-
-              <button type="submit" id="checkout-btn" class="cta-btn-green full">Gerar Pix de <span id="checkout-btn-value">R$ 29,90</span> →</button>
-            </form>
 
             <div id="checkout-status" class="status" hidden></div>
-
-            <div id="pix-result" class="result" hidden>
-              <h3>Pague com Pix</h3>
-              <img id="pix-qr-image" alt="QR Code Pix" />
-              <label for="pix-copy-paste">Pix copia e cola</label>
-              <textarea id="pix-copy-paste" readonly></textarea>
-              <button type="button" id="copy-pix-btn" class="secondary-btn">Copiar código Pix</button>
-              <p class="field-hint">Assim que o pagamento for confirmado, sua música completa aparece aqui automaticamente.</p>
-            </div>
 
             <div id="full-song-result" class="result" hidden>
               <h3>Sua música completa</h3>

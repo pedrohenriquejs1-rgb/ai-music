@@ -552,6 +552,10 @@ select:focus {
   color: var(--coral);
 }
 
+.back-link[hidden] {
+  display: none;
+}
+
 /* ---- Resumo do pedido (Passo 4) ---- */
 .order-summary {
   background: white;
@@ -661,6 +665,34 @@ select:focus {
 .upsell-desc {
   font-size: 0.82rem;
   color: var(--card-muted);
+}
+
+/* ---- Banner de sucesso (pagamento confirmado) ---- */
+.success-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--green-soft-bg);
+  color: var(--green-soft-text);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-weight: 900;
+  font-size: 1.05rem;
+}
+
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-size: 0.9rem;
+  flex-shrink: 0;
 }
 
 form,
