@@ -773,7 +773,7 @@ function unlockPaidSong() {
   clearGenerationCounts();
   fullAudioPlayer.src = lastGeneration.audioUrl;
   fullPlayer.setCap(null);
-  fullDownloadLink.href = lastGeneration.audioUrl;
+  fullDownloadLink.href = `/api/download?url=${encodeURIComponent(lastGeneration.audioUrl)}&filename=minha-musica.mp3`;
   fullSongResult.hidden = false;
   pixResult.hidden = true;
 

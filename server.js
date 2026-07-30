@@ -126,6 +126,57 @@ app.get("/api/generate/status/:taskId", async (req, res) => {
   }
 });
 
+function isSafeExternalUrl(urlString) {
+  let parsed;
+  try {
+    parsed = new URL(urlString);
+  } catch (err) {
+    return false;
+  }
+
+  if (parsed.protocol !== "https:") return false;
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (hostname === "localhost" || hostname.endsWith(".local")) return false;
+
+  const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const a = Number(ipv4Match[1]);
+    const b = Number(ipv4Match[2]);
+    const isPrivate =
+      a === 127 || a === 10 || a === 0 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254);
+    if (isPrivate) return false;
+  }
+
+  return true;
+}
+
+app.get("/api/download", async (req, res) => {
+  const { url, filename } = req.query;
+
+  if (!url || typeof url !== "string" || !isSafeExternalUrl(url)) {
+    return res.status(400).json({ error: "URL de áudio inválida." });
+  }
+
+  const safeFilename = typeof filename === "string" && /^[\w\-. ]+\.mp3$/i.test(filename) ? filename : "minha-musica.mp3";
+
+  try {
+    const audioRes = await fetch(url);
+    if (!audioRes.ok) {
+      return res.status(502).json({ error: "Falha ao baixar o áudio." });
+    }
+
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeFilename}"`);
+
+    const buffer = Buffer.from(await audioRes.arrayBuffer());
+    res.send(buffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Falha ao baixar o áudio." });
+  }
+});
+
 app.post("/api/pix-payment", async (req, res) => {
   const { email, phone, bundle } = req.body;
 
