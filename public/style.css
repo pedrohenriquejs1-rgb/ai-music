@@ -1410,6 +1410,49 @@ textarea {
   flex: 1;
 }
 
+.second-song-promo {
+  position: relative;
+  background: linear-gradient(135deg, #fff4e0, #ffe9d6);
+  border: 2px solid #f0a830;
+  border-radius: 16px;
+  padding: 20px 18px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.second-song-promo[hidden] {
+  display: none;
+}
+
+.second-song-badge {
+  display: inline-block;
+  background: #f0a830;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.second-song-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--card-text);
+  margin: 0 0 14px;
+}
+
+.second-song-title strong {
+  color: var(--coral);
+}
+
+.second-song-hint {
+  font-size: 0.78rem;
+  color: var(--card-muted);
+  margin: 10px 0 0;
+}
+
 .delivery-note {
   margin-top: 14px;
   padding: 12px 14px;

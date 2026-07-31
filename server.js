@@ -410,7 +410,7 @@ app.get("/api/resume/:paymentId", async (req, res) => {
 });
 
 app.post("/api/send-song-email", async (req, res) => {
-  const { email, audioUrl } = req.body;
+  const { email, audioUrl, bundle } = req.body;
 
   if (!email || typeof email !== "string" || !email.includes("@")) {
     return res.status(400).json({ error: "E-mail inválido." });
@@ -424,6 +424,18 @@ app.post("/api/send-song-email", async (req, res) => {
     return res.status(500).json({ error: "Envio de e-mail não configurado." });
   }
 
+  const bundlePromo = bundle
+    ? `
+      <div style="margin-top: 20px; padding: 16px; background: linear-gradient(135deg, #fff4e0, #ffe9d6); border: 2px solid #f0a830; border-radius: 12px;">
+        <p style="color: #a06400; font-weight: bold; letter-spacing: 0.04em; font-size: 11px; margin: 0 0 8px;">🎁 BÔNUS DA SUA PROMOÇÃO</p>
+        <p style="color: #272326; font-size: 15px; font-weight: bold; margin: 0 0 10px;">Você ainda tem 1 música completa grátis pra criar!</p>
+        <a href="${SITE_URL}" style="display: inline-block; padding: 12px 22px; background: #19b474; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">
+          Criar minha 2ª música
+        </a>
+      </div>
+    `
+    : "";
+
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; background: #f3e9e6; border-radius: 16px;">
       <p style="color: #be3856; font-weight: bold; letter-spacing: 0.05em; font-size: 12px; margin: 0 0 8px;">SUA MÚSICA ESTÁ PRONTA</p>
@@ -434,6 +446,7 @@ app.post("/api/send-song-email", async (req, res) => {
       <a href="${audioUrl}" style="display: inline-block; margin-top: 16px; padding: 14px 28px; background: linear-gradient(90deg, #be3856, #ef635c); color: white; text-decoration: none; border-radius: 12px; font-weight: bold;">
         Baixar minha música
       </a>
+      ${bundlePromo}
       <p style="color: #a98e88; font-size: 12px; margin-top: 24px;">Minha Música IA</p>
     </div>
   `;

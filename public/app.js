@@ -100,7 +100,13 @@ function renderOrderCard(order) {
 
   const secondSongBtnHtml =
     order.bundle && !order.audioUrl2
-      ? `<button type="button" class="cta-btn-green full order-create-second-btn" data-payment-id="${order.paymentId}">🎁 Criar minha 2ª música (já paga) →</button>`
+      ? `
+        <div class="second-song-promo">
+          <span class="second-song-badge">🎁 BÔNUS DA SUA PROMOÇÃO</span>
+          <p class="second-song-title">Você ainda tem <strong>1 música completa grátis</strong> pra criar!</p>
+          <button type="button" class="cta-btn-green full order-create-second-btn" data-payment-id="${order.paymentId}">Criar minha 2ª música agora →</button>
+        </div>
+      `
       : "";
 
   card.innerHTML = `
@@ -737,7 +743,7 @@ document.getElementById("create-second-song-btn").addEventListener("click", () =
   document.getElementById("bundle-checkbox").checked = false;
   updateOrderTotal();
   fullSongResult.hidden = true;
-  document.getElementById("create-second-song-btn").hidden = true;
+  document.getElementById("second-song-promo").hidden = true;
 
   goToStep("story-tab");
 });
@@ -931,23 +937,25 @@ function unlockPaidSong(options = {}) {
   document.getElementById("payment-back-link").hidden = true;
   document.getElementById("success-banner").hidden = false;
 
-  const createSecondSongBtn = document.getElementById("create-second-song-btn");
+  const secondSongPromo = document.getElementById("second-song-promo");
+  const isBundlePurchase = !options.isSecondSong && lastPaidAsBundle;
+
   if (options.isSecondSong) {
-    createSecondSongBtn.hidden = true;
+    secondSongPromo.hidden = true;
     setCheckoutStatus("Sua 2ª música está liberada abaixo e também foi enviada para o seu e-mail.");
     saveSecondSong(currentPaymentId, lastGeneration.audioUrl, pixEmailInput.value.trim());
   } else if (lastPaidAsBundle) {
-    createSecondSongBtn.hidden = false;
-    setCheckoutStatus("Sua música está liberada abaixo — e você ainda tem +1 música garantida na promoção. Pode criar agora ou voltar depois em \"Meus pedidos\".");
+    secondSongPromo.hidden = false;
+    setCheckoutStatus("Sua música está liberada abaixo!");
     trackPixel("Purchase", { value: 50.0, currency: "BRL" });
   } else {
-    createSecondSongBtn.hidden = true;
+    secondSongPromo.hidden = true;
     setCheckoutStatus("Sua música completa está liberada abaixo e também foi enviada para o seu e-mail.");
     trackPixel("Purchase", { value: 29.9, currency: "BRL" });
   }
   lastPaidAsBundle = false;
 
-  sendSongEmail();
+  sendSongEmail(isBundlePurchase);
 }
 
 async function saveSecondSong(paymentId, audioUrl, email) {
@@ -964,12 +972,12 @@ async function saveSecondSong(paymentId, audioUrl, email) {
   }
 }
 
-async function sendSongEmail() {
+async function sendSongEmail(isBundle = false) {
   try {
     await fetch("/api/send-song-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: pixEmailInput.value.trim(), audioUrl: lastGeneration.audioUrl }),
+      body: JSON.stringify({ email: pixEmailInput.value.trim(), audioUrl: lastGeneration.audioUrl, bundle: isBundle }),
     });
   } catch (err) {
     // não bloqueia a experiência se o e-mail falhar
