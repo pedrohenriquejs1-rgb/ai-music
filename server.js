@@ -34,6 +34,10 @@ const BUNDLE_PRICE = 50.0;
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Minha Música IA <onboarding@resend.dev>";
 const PREVIEW_SECONDS = 40;
 const SUNO_CALLBACK_URL = process.env.SUNO_CALLBACK_URL || "https://example.com/";
+const SITE_URL = process.env.SITE_URL || "https://musica.pedrosolucoesia.com.br";
+const ABANDONED_CART_DELAY_MS = 60 * 60 * 1000;
+const ABANDONED_CART_MAX_AGE_MS = 26 * 60 * 60 * 1000;
+const ABANDONED_CART_CHECK_INTERVAL_MS = 15 * 60 * 1000;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -215,6 +219,7 @@ app.post("/api/pix-payment", async (req, res) => {
           bundle: bundle ? "true" : "false",
           audio_url_1: typeof audioUrl === "string" ? audioUrl.slice(0, 500) : "",
           audio_url_2: "",
+          reminder_sent: "false",
         },
       }),
     });
@@ -374,6 +379,36 @@ app.post("/api/orders/:paymentId/second-song", async (req, res) => {
   }
 });
 
+app.get("/api/resume/:paymentId", async (req, res) => {
+  if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    return res.status(500).json({ error: "Pagamento não configurado." });
+  }
+
+  try {
+    const response = await fetch(`https://api.mercadopago.com/v1/payments/${req.params.paymentId}`, {
+      headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` },
+    });
+    const payment = await response.json();
+
+    if (!response.ok) {
+      return res.status(404).json({ error: "Pedido não encontrado." });
+    }
+
+    if (payment.status === "approved") {
+      return res.json({ alreadyPaid: true });
+    }
+
+    res.json({
+      alreadyPaid: false,
+      email: payment.external_reference || "",
+      audioUrl: payment.metadata?.audio_url_1 || "",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Falha ao buscar o pedido." });
+  }
+});
+
 app.post("/api/send-song-email", async (req, res) => {
   const { email, audioUrl } = req.body;
 
@@ -468,6 +503,100 @@ app.post("/api/lyrics", async (req, res) => {
   }
 });
 
+async function sendAbandonedCartEmail(email, paymentId) {
+  const resumeUrl = `${SITE_URL}/?resume=${paymentId}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; background: #f3e9e6; border-radius: 16px;">
+      <p style="color: #be3856; font-weight: bold; letter-spacing: 0.05em; font-size: 12px; margin: 0 0 8px;">SUA MÚSICA ESTÁ QUASE PRONTA</p>
+      <h1 style="color: #272326; font-size: 22px; margin: 0 0 16px;">Você esqueceu de finalizar seu pedido 🎵</h1>
+      <p style="color: #544b4e; font-size: 15px; line-height: 1.5;">
+        Sua prévia já foi criada, mas o pagamento não foi concluído. Clique no botão abaixo para voltar direto para onde parou e liberar sua música completa.
+      </p>
+      <a href="${resumeUrl}" style="display: inline-block; margin-top: 16px; padding: 14px 28px; background: linear-gradient(90deg, #be3856, #ef635c); color: white; text-decoration: none; border-radius: 12px; font-weight: bold;">
+        Finalizar minha música
+      </a>
+      <p style="color: #a98e88; font-size: 12px; margin-top: 24px;">Minha Música IA</p>
+    </div>
+  `;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      from: RESEND_FROM_EMAIL,
+      to: [email],
+      subject: "Você esqueceu de finalizar sua música! 🎵",
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    console.error(await response.json());
+    throw new Error("Falha ao enviar e-mail de recuperação.");
+  }
+}
+
+async function checkAbandonedCarts() {
+  if (!process.env.MERCADOPAGO_ACCESS_TOKEN || !process.env.RESEND_API_KEY) return;
+
+  try {
+    const searchUrl = new URL("https://api.mercadopago.com/v1/payments/search");
+    searchUrl.searchParams.set("status", "pending");
+    searchUrl.searchParams.set("sort", "date_created");
+    searchUrl.searchParams.set("criteria", "desc");
+
+    const response = await fetch(searchUrl, {
+      headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` },
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      return;
+    }
+
+    const now = Date.now();
+
+    for (const payment of data.results || []) {
+      const email = payment.external_reference;
+      const createdAt = new Date(payment.date_created).getTime();
+      const age = now - createdAt;
+      const alreadySent = payment.metadata?.reminder_sent === "true";
+
+      if (!email || alreadySent || age < ABANDONED_CART_DELAY_MS || age > ABANDONED_CART_MAX_AGE_MS) {
+        continue;
+      }
+
+      try {
+        await sendAbandonedCartEmail(email, payment.id);
+        console.log(`E-mail de recuperação enviado para ${email} (pedido ${payment.id})`);
+
+        await fetch(`https://api.mercadopago.com/v1/payments/${payment.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+          },
+          body: JSON.stringify({
+            metadata: { ...payment.metadata, reminder_sent: "true" },
+          }),
+        });
+      } catch (err) {
+        console.error(`Falha ao enviar recuperação para ${email}:`, err);
+      }
+    }
+  } catch (err) {
+    console.error("Falha ao checar carrinhos abandonados:", err);
+  }
+}
+
+setInterval(checkAbandonedCarts, ABANDONED_CART_CHECK_INTERVAL_MS);
+
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
+  checkAbandonedCarts();
 });

@@ -977,7 +977,7 @@ async function sendSongEmail() {
 }
 
 // ---- Restaura prévia não paga ao recarregar a página ----
-(function restorePendingSong() {
+function restorePendingSong() {
   const pending = loadPendingSong();
   if (!pending || !pending.audioUrl) return;
 
@@ -991,7 +991,41 @@ async function sendSongEmail() {
   openModal();
   goToStep("payment-tab");
   setCheckoutStatus("Continuando de onde você parou — finalize o pagamento para liberar sua música.");
-})();
+}
+
+// ---- Retoma pedido a partir do link de recuperação por e-mail (?resume=paymentId) ----
+const resumePaymentId = new URLSearchParams(window.location.search).get("resume");
+
+if (resumePaymentId) {
+  fetch(`/api/resume/${resumePaymentId}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.alreadyPaid) {
+        openModal();
+        goToStep("payment-tab");
+        setCheckoutStatus('Esse pedido já foi pago! Use "Meus pedidos" para baixar sua música.');
+        return;
+      }
+
+      if (!data.audioUrl) {
+        restorePendingSong();
+        return;
+      }
+
+      lastGeneration = { audioUrl: data.audioUrl, prompt: "", lyrics: "" };
+      audioPlayer.src = data.audioUrl;
+      previewPlayer.setCap(PREVIEW_SECONDS);
+      resultEl.hidden = false;
+      if (data.email) pixEmailInput.value = data.email;
+
+      openModal();
+      goToStep("payment-tab");
+      setCheckoutStatus("Continuando de onde você parou — finalize o pagamento para liberar sua música.");
+    })
+    .catch(() => restorePendingSong());
+} else {
+  restorePendingSong();
+}
 
 // ---- Restaura limites de geração ao recarregar a página ----
 (function restoreGenerationCounts() {
