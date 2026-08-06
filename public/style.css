@@ -146,6 +146,27 @@ body {
   background: rgba(255, 255, 255, 0.16);
 }
 
+/* ---- Suporte pelo WhatsApp (botão flutuante) ---- */
+.whatsapp-support-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  z-index: 40;
+  transition: transform 0.15s;
+}
+
+.whatsapp-support-btn:hover {
+  transform: scale(1.06);
+}
+
 .eyebrow {
   color: var(--coral-light);
   font-size: 0.8rem;
